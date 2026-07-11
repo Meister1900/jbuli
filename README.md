@@ -4,7 +4,7 @@ Fußball Ergebnisse, Tabellen und Spielpläne für Joomla
 http://www.jbuli.de/
 
 
-## BUNDESLIGA SPIELPLAN-MODUL FÜR JOOMLA 3
+## BUNDESLIGA SPIELPLAN-MODUL FÜR JOOMLA 6
 Joomla Modul zur Anzeige aller Spiele eines Vereins aus der 1. oder 2. Fussball Bundesliga
 
 Features
