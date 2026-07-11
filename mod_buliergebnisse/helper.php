@@ -1,4 +1,10 @@
 <?php
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\HTML\HTMLHelper as JHtml;
+use Joomla\Registry\Registry as JRegistry;
+use Joomla\CMS\Uri\Uri as JURI;
+use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
+use Joomla\Database\DatabaseInterface;
 /**
  * helper.php - (c) Markus Krupp
  * Die Daten werden vom Webservice openligadb bereitgestellt
@@ -15,7 +21,13 @@ class modBuliergebnisseHelper
         JHtml::_('bootstrap.framework');
 
         $app = JFactory::getApplication();
-        $document = JFactory::getDocument();
+        $document = $app->getDocument();
+        $document->addStyleDeclaration(
+            '#spielplan_' . (int) $module->id . ' { width:100%; max-width:none; }'
+            . '#spielplan_' . (int) $module->id . ' table { width:100%; border-collapse:collapse; }'
+            . '#spielplan_' . (int) $module->id . ' td { vertical-align:middle; }'
+            . '#spielplan_' . (int) $module->id . ' img { object-fit:contain; }'
+        );
 
         $document->addScriptDeclaration('
       jQuery(document).ready(function() {
@@ -69,15 +81,19 @@ class modBuliergebnisseHelper
      */
     public static function fetchdata($url, $timeout)
     {
+        $url = str_replace('https://www.openligadb.de/api/', 'https://api.openligadb.de/', $url);
         if (function_exists('curl_version')) {
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, min(5, (int) $timeout));
+            curl_setopt($curl, CURLOPT_TIMEOUT, max(1, (int) $timeout));
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_USERAGENT, 'Joomla/6 mod_buliergebnisse');
             $content = curl_exec($curl);
+            $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
             curl_close($curl);
-
-            return $content;
+            return $content !== false && $status >= 200 && $status < 300 ? $content : false;
         } elseif (ini_get('allow_url_fopen')) {
             $context = stream_context_create([
         'http' => [ 'timeout' => $timeout ]
@@ -89,6 +105,30 @@ class modBuliergebnisseHelper
         }
     }
 
+    private static function decodeApiResponse(string $json)
+    {
+        $value = json_decode($json);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
+        return self::normaliseApiKeys($value);
+    }
+
+    private static function normaliseApiKeys($value)
+    {
+        if (is_array($value)) {
+            return array_map([self::class, 'normaliseApiKeys'], $value);
+        }
+        if (is_object($value)) {
+            $normalised = new stdClass();
+            foreach (get_object_vars($value) as $key => $item) {
+                $normalised->{ucfirst($key)} = self::normaliseApiKeys($item);
+            }
+            return $normalised;
+        }
+        return $value;
+    }
+
     /**
      * AJAX Endpoint
      */
@@ -96,7 +136,7 @@ class modBuliergebnisseHelper
     {
         $jinput = JFactory::getApplication()->input;
         $module = JModuleHelper::getModule('buliergebnisse', $jinput->get('titel', 'default_value', 'filter'));
-        $db = JFactory::getDbo();
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
 
         $jparams = new JRegistry();
         $jparams->loadString($module->params);
@@ -129,7 +169,7 @@ class modBuliergebnisseHelper
                     $spieltag = 1;
                 }
             } else {
-                $spieltag = json_decode($spieltag);
+                $spieltag = self::decodeApiResponse($spieltag);
                 $spieltagsname = $spieltag->GroupName;
                 $spieltag = $spieltag->GroupOrderID;
 
@@ -140,13 +180,8 @@ class modBuliergebnisseHelper
                     }
                 }
 
-                // Aktueller Spieltag hat sich geändert -> Als Parameter lastCurrentMatchday speichern
-                if ($jparams->get('lastCurrentMatchday') != $spieltag) {
-                    $jparams->set('lastCurrentMatchday', $spieltag);
-                    $module->params = $jparams->toString();
-                    $dbtable = JTable::getInstance('module');
-                    $dbtable->save((array)$module);
-                }
+                // Der aktuelle Spieltag gilt für diese Anfrage. Die alte JTable-API
+                // zum Schreiben von Modulparametern existiert in Joomla 6 nicht mehr.
             }
         }
 
@@ -196,7 +231,7 @@ class modBuliergebnisseHelper
                     $paarungen = reset($paarungen_cache[$spieltag . $liga . $saison]);
                 }
             } else {
-                $paarungen = json_decode($paarungen);
+                $paarungen = self::decodeApiResponse($paarungen);
                 unset($paarungen_cache[$spieltag . $liga . $saison]);
                 $paarungen_cache[$spieltag . $liga . $saison][$lastchange] = $paarungen;
                 file_put_contents($cachefile, serialize($paarungen_cache));
@@ -228,7 +263,7 @@ class modBuliergebnisseHelper
         }
 
         // Start HTML OUTPUT
-        $table = "<table border='0' cellpadding='1' cellspacing='1'>\r\n";
+        $table = "<table class='jbuli-results'>\r\n";
 
         // Spieltag Dropdown
         if ($liga == 'cl1617') {

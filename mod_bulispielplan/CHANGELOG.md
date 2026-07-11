@@ -1,3 +1,8 @@
+ * 2.0.4 - Exakte Teamwerte beim Vereinswechsel, unter anderem für SV Werder Bremen
+ * 2.0.3 - Logoquelle des Ergebnismoduls und großzügigeres Zeilenlayout
+ * 2.0.2 - Vollständige Logos für 2025/26 und 2026/27 mit API-Fallback
+ * 2.0.1 - AJAX-Modulauflösung, JSON-Cache und responsive Modulbreite
+ * 2.0.0 - Joomla 6, OpenLigaDB-API aktualisiert, Saison 2026/27 und neue Teamlogos
  * 1.00 - Erste Veröffentlichung
  * 1.1  - Dropdown mit Vereinslogos
  * 1.2  - Bugfix DFB Pokal

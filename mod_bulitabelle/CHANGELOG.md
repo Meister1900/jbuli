@@ -1,3 +1,7 @@
+ * 2.0.3 - Sporttabellen-Layout mit mehr Abstand und hervorgehobenen Punkten
+ * 2.0.2 - G/U/V auch in schmalen Modulpositionen sichtbar
+ * 2.0.1 - Teamlogos, G/U/V, separate Torwerte und responsive Spalten
+ * 2.0.0 - Joomla 6, OpenLigaDB-API aktualisiert, Saison 2026/27 und neue Teamlogos
  * 1.0.0 - Erste Veröffentlichung
  * 1.0.1 - Saison 2014
  * 1.0.2 - Fehlerbehandlung optimiert

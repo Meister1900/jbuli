@@ -1,4 +1,6 @@
 <?php
+use Joomla\CMS\Factory as JFactory;
+use Joomla\Database\DatabaseInterface;
 
 class mod_bulispielplanInstallerScript
 {
@@ -7,7 +9,7 @@ class mod_bulispielplanInstallerScript
      *
      * @param   JAdapterInstance  $adapter  The object responsible for running this script
      */
-    public function __construct(JAdapterInstance $adapter)
+    public function __construct($adapter)
     {
     }
 
@@ -20,7 +22,7 @@ class mod_bulispielplanInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function preflight($route, JAdapterInstance $adapter)
+    public function preflight($route, $adapter)
     {
     }
 
@@ -33,7 +35,7 @@ class mod_bulispielplanInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function postflight($route, JAdapterInstance $adapter)
+    public function postflight($route, $adapter)
     {
     }
 
@@ -45,7 +47,7 @@ class mod_bulispielplanInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function install(JAdapterInstance $adapter)
+    public function install($adapter)
     {
         $this->setupDatabase();
     }
@@ -57,14 +59,8 @@ class mod_bulispielplanInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function update(JAdapterInstance $adapter)
+    public function update($adapter)
     {
-        $db = JFactory::getDbo();
-        $query = 'DROP TABLE '.$db->quoteName('#__bulispielplan');
-
-        $db->setQuery($query);
-        $db->query();
-
         $this->setupDatabase();
     }
 
@@ -73,26 +69,27 @@ class mod_bulispielplanInstallerScript
      *
      * @param   JAdapterInstance  $adapter  The object responsible for running this script
      */
-    public function uninstall(JAdapterInstance $adapter)
+    public function uninstall($adapter)
     {
-        $db = JFactory::getDbo();
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
         $query = 'DROP TABLE '.$db->quoteName('#__bulispielplan');
 
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
+
     }
 
     private function setupDatabase()
     {
-        $db = JFactory::getDbo();
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
         $query = 'CREATE TABLE IF NOT EXISTS '.$db->quoteName('#__bulispielplan').' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, liga VARCHAR(7), bezeichnung_webservice VARCHAR(100), bezeichnung_kurz VARCHAR(100), bezeichnung_mittel VARCHAR(100), dateiname_logo VARCHAR(100))';
 
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
 
         $query = 'TRUNCATE TABLE '.$db->quoteName('#__bulispielplan');
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
 
         $query = "INSERT INTO ".$db->quoteName('#__bulispielplan')." VALUES
                (1, 'bl1', 'VfL Wolfsburg', 'WOL', 'Wolfsburg', 'wolfsburg.png'), 
@@ -130,11 +127,32 @@ class mod_bulispielplanInstallerScript
 			   (33, 'bl2', 'Karlsruher SC', 'KSC', 'Karlsruhe', 'karlsruhe.png'),
                (34, 'bl2', '1. FC Kaiserslautern', 'KLA', 'Lautern', 'lautern.png'),
                (35, 'bl2', '1. FC Magdeburg', 'MAG', 'Magdeburg', 'magdeburg.png'),
-               (36, 'bl2', 'Eintracht Braunschweig', 'BRA', 'Braunschweig', 'braunschweig.png');
+               (36, 'bl2', 'Eintracht Braunschweig', 'EBS', 'Braunschweig', 'braunschweig.png'),
+               (37, 'bl1', 'SV Werder Bremen', 'SVW', 'Bremen', 'bremen.png'),
+               (38, 'bl1', 'TSG Hoffenheim', 'TSG', 'Hoffenheim', 'hoffenheim.png'),
+               (39, 'bl1', 'SV 07 Elversberg', 'ELV', 'Elversberg', 'elversberg.png'),
+               (40, 'bl2', 'Dynamo Dresden', 'SGD', 'Dresden', 'dresden.png'),
+               (41, 'bl2', 'Energie Cottbus', 'FCE', 'Cottbus', 'cottbus.svg'),
+               (42, 'bl2', 'VfL Osnabrück', 'OSN', 'Osnabrück', 'osnabrueck.png'),
+               (43, 'bl2', 'DSC Arminia Bielefeld', 'DSC', 'Bielefeld', 'bielefeld.png'),
+               (44, 'bl1', 'Bayer 04 Leverkusen', 'B04', 'Leverkusen', 'leverkusen.png');
 			   ";
 
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
+
+        // Ligazugehörigkeit 2026/27 für bestehende und neue OpenLigaDB-Namen.
+        $leagueUpdates = [
+            'bl1' => ['Hamburger SV', 'SC Paderborn 07', 'FC Schalke 04', 'SV 07 Elversberg', 'SV Werder Bremen', 'TSG Hoffenheim'],
+            'bl2' => ['VfL Wolfsburg', '1. FC Heidenheim 1846', 'FC St. Pauli', 'Hannover 96', 'SV Darmstadt 98', '1. FC Kaiserslautern', 'Hertha BSC', '1. FC Nürnberg', 'VfL Bochum', 'Karlsruher SC', 'Dynamo Dresden', 'Holstein Kiel', 'DSC Arminia Bielefeld', '1. FC Magdeburg', 'Eintracht Braunschweig', 'SpVgg Greuther Fürth', 'VfL Osnabrück', 'Energie Cottbus'],
+        ];
+        foreach ($leagueUpdates as $league => $names) {
+            $query = $db->getQuery(true)
+                ->update($db->quoteName('#__bulispielplan'))
+                ->set($db->quoteName('liga') . ' = ' . $db->quote($league))
+                ->where($db->quoteName('bezeichnung_webservice') . ' IN (' . implode(',', $db->quote($names)) . ')');
+            $db->setQuery($query)->execute();
+        }
 
         foreach (glob(JPATH_BASE."/../modules/mod_bulispielplan/cache_*.txt") as $cachefile) {
             if (is_readable($cachefile)) {

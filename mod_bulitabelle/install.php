@@ -1,4 +1,6 @@
 <?php
+use Joomla\CMS\Factory as JFactory;
+use Joomla\Database\DatabaseInterface;
 
 class mod_bulitabelleInstallerScript
 {
@@ -7,7 +9,7 @@ class mod_bulitabelleInstallerScript
      *
      * @param   JAdapterInstance  $adapter  The object responsible for running this script
      */
-    public function __construct(JAdapterInstance $adapter)
+    public function __construct($adapter)
     {
     }
 
@@ -19,7 +21,7 @@ class mod_bulitabelleInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function preflight($route, JAdapterInstance $adapter)
+    public function preflight($route, $adapter)
     {
     }
 
@@ -31,7 +33,7 @@ class mod_bulitabelleInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function postflight($route, JAdapterInstance $adapter)
+    public function postflight($route, $adapter)
     {
     }
 
@@ -42,7 +44,7 @@ class mod_bulitabelleInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function install(JAdapterInstance $adapter)
+    public function install($adapter)
     {
         $this->setupDatabase();
     }
@@ -54,7 +56,7 @@ class mod_bulitabelleInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function update(JAdapterInstance $adapter)
+    public function update($adapter)
     {
         $this->setupDatabase();
     }
@@ -64,25 +66,34 @@ class mod_bulitabelleInstallerScript
      *
      * @param   JAdapterInstance  $adapter  The object responsible for running this script
      */
-    public function uninstall(JAdapterInstance $adapter)
+    public function uninstall($adapter)
     {
-        $db = JFactory::getDbo();
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
         $query = 'DROP TABLE '.$db->quoteName('#__bulitabelle');
 
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
     }
 
     private function setupDatabase()
     {
-        $db = JFactory::getDbo();
-        $query = 'CREATE TABLE IF NOT EXISTS '.$db->quoteName('#__bulitabelle').' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, team VARCHAR(100), spiele INT, tore INT, gegentore INT, punkte INT, modul_id INT)';
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
+        $query = 'CREATE TABLE IF NOT EXISTS '.$db->quoteName('#__bulitabelle').' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, team VARCHAR(100), spiele INT, gewonnen INT NOT NULL DEFAULT 0, unentschieden INT NOT NULL DEFAULT 0, verloren INT NOT NULL DEFAULT 0, tore INT, gegentore INT, punkte INT, modul_id INT)';
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
+
+        $columns = $db->getTableColumns($db->replacePrefix('#__bulitabelle'));
+        foreach (['gewonnen', 'unentschieden', 'verloren'] as $column) {
+            if (!isset($columns[$column])) {
+                $query = 'ALTER TABLE ' . $db->quoteName('#__bulitabelle')
+                    . ' ADD ' . $db->quoteName($column) . ' INT NOT NULL DEFAULT 0';
+                $db->setQuery($query)->execute();
+            }
+        }
 
         $query = 'TRUNCATE TABLE '.$db->quoteName('#__bulitabelle');
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
 
         $cachefile = JPATH_BASE."/../modules/mod_bulitabelle/cache.txt";
         if (is_readable($cachefile)) {

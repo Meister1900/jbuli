@@ -1,3 +1,7 @@
+ * 2.0.3 - Gemeinsamer Release-Stand mit verbessertem Tabellenlayout
+ * 2.0.2 - Gemeinsamer Release-Stand der Joomla-6-Module
+ * 2.0.1 - Responsive Modulbreite und Joomla-6-Fehlerbehandlung
+ * 2.0.0 - Joomla 6, OpenLigaDB-API aktualisiert, Saison 2026/27 und neue Teamlogos
  * 1.00 - Erste Veröffentlichung
  * 1.01 - Installations Script ausgelagert und auf Joomla 3 migriert
  * 1.02 - Saison 2014 und Liga 2

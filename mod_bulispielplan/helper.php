@@ -1,4 +1,10 @@
 <?php
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\HTML\HTMLHelper as JHtml;
+use Joomla\Registry\Registry as JRegistry;
+use Joomla\CMS\Uri\Uri as JURI;
+use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
+use Joomla\Database\DatabaseInterface;
 
 class modBulispielplanHelper
 {
@@ -7,22 +13,25 @@ class modBulispielplanHelper
      */
     public function __construct($module, $params)
     {
-        // Load Bootstrap and JQuery
-        JHtml::_('bootstrap.framework');
-        JHtml::_('jquery.ui');
-        JHtml::script('modules/mod_bulispielplan/jquery.selectBoxIt.min.js');
-        JHtml::stylesheet('modules/mod_bulispielplan/jquery.selectBoxIt.css');
+        JHtml::_('jquery.framework');
 
         $app = JFactory::getApplication();
-        $document = JFactory::getDocument();
+        $document = $app->getDocument();
+        $activeMenu = $app->getMenu()->getActive();
+        $itemId = $activeMenu ? (int) $activeMenu->id : 0;
 
-        $style = '.selectboxit-container .selectboxit-options {
-                 max-height: ' . ($params->get('hoehe') -20) . 'px;
-              }
-              .selectboxit-container .selectboxit {
-                width: ' . ($params->get('breite') -20) .'px;
-              }
-              ';
+        $style = '#bulispielplan_' . (int) $module->id . ' { width:100%; max-width:none; }
+              #bulispielplan_' . (int) $module->id . ' table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+              #bulispielplan_' . (int) $module->id . ' select { width:100%; max-width:100%; padding:6px 8px; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td { vertical-align:middle; padding:6px 7px; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule tr { border-bottom:1px solid rgba(127,127,127,.25); }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule tr:hover { background:rgba(127,127,127,.08); }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(1) { width:2.2rem; text-align:right; font-weight:700; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(2) { width:3.8rem; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(3) { width:32px; min-width:32px; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(5) { width:2rem; text-align:center; font-weight:700; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { width:3.5rem; text-align:right; font-weight:700; }
+              #bulispielplan_' . (int) $module->id . ' img { display:block; width:20px; height:20px; object-fit:contain; }';
         $document->addStyleDeclaration($style);
 
         $document->addScriptDeclaration('
@@ -37,11 +46,11 @@ class modBulispielplanHelper
             {
               option: "com_ajax",
               module: "bulispielplan",
-              Itemid: "' . $app->getMenu()->getActive()->id . '",
+              Itemid: "' . $itemId . '",
               method: "getSpielplan",
               format: "json",
-              titel: "' . $module->title . '",
-              verein: encodeURI(jQuery("#verein_' . $module->id . ' option:selected").text()),
+              module_id: "' . (int) $module->id . '",
+              verein: jQuery("#verein_' . $module->id . '").val(),
             },
             function(data){
               jQuery("#bulispielplan_loading_' . $module->id . '").hide();
@@ -49,12 +58,8 @@ class modBulispielplanHelper
                 jQuery("#bulispielplan_' . $module->id . '").html(data.message);
               } else {
                 jQuery("#bulispielplan_' . $module->id . '").html(data.data);
-                jQuery("#verein_' . $module->id . '").selectBoxIt({autoWidth: false});
-                jQuery(".hasTooltip").tooltip({html: "true"});
-				
-				        var divpos = jQuery("#bulispielplan_' . $module->id . '").children("div").offset().top;
-				        var elementpos = jQuery("#' . $module->id . '_current").prevAll(":eq(4)").offset().top;
-				        jQuery("#bulispielplan_' . $module->id . '").children("div").scrollTop(elementpos-divpos);
+                var current = document.getElementById("' . $module->id . '_current");
+                if (current) { current.scrollIntoView({block: "center"}); }
               }
             }
         ).fail(function(xhr) {
@@ -70,12 +75,8 @@ class modBulispielplanHelper
             jQuery("#bulispielplan_' . $module->id . '").html(data.message);
           } else {
             jQuery("#bulispielplan_' . $module->id . '").html(data.data);
-            jQuery("#verein_' . $module->id . '").selectBoxIt({autoWidth: false});
-            jQuery(".hasTooltip").tooltip({html: "true"});
-				
-				    var divpos = jQuery("#bulispielplan_' . $module->id . '").children("div").offset().top;
-				    var elementpos = jQuery("#' . $module->id . '_current").prevAll(":eq(4)").offset().top;
-				    jQuery("#bulispielplan_' . $module->id . '").children("div").scrollTop(elementpos-divpos);
+            var current = document.getElementById("' . $module->id . '_current");
+            if (current) { current.scrollIntoView({block: "center"}); }
           }
         });
       };
@@ -87,15 +88,19 @@ class modBulispielplanHelper
      */
     public static function fetchdata($url, $timeout)
     {
+        $url = str_replace('https://www.openligadb.de/api/', 'https://api.openligadb.de/', $url);
         if (function_exists('curl_version')) {
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, min(5, (int) $timeout));
+            curl_setopt($curl, CURLOPT_TIMEOUT, max(1, (int) $timeout));
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_USERAGENT, 'Joomla/6 mod_bulispielplan');
             $content = curl_exec($curl);
+            $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
             curl_close($curl);
-
-            return $content;
+            return $content !== false && $status >= 200 && $status < 300 ? $content : false;
         } elseif (ini_get('allow_url_fopen')) {
             $context = stream_context_create([
         'http' => [ 'timeout' => $timeout ]
@@ -107,97 +112,169 @@ class modBulispielplanHelper
         }
     }
 
+    private static function decodeApiResponse(string $json)
+    {
+        $value = json_decode($json);
+        if (json_last_error() !== JSON_ERROR_NONE) { return null; }
+        return self::normaliseApiKeys($value);
+    }
+
+    private static function normaliseApiKeys($value)
+    {
+        if (is_array($value)) { return array_map([self::class, 'normaliseApiKeys'], $value); }
+        if (is_object($value)) {
+            $normalised = new stdClass();
+            foreach (get_object_vars($value) as $key => $item) { $normalised->{ucfirst($key)} = self::normaliseApiKeys($item); }
+            return $normalised;
+        }
+        return $value;
+    }
+
     /**
      * AJAX Endpoint
      */
     public static function getSpielplanAjax()
     {
         $jinput = JFactory::getApplication()->input;
-        $module = JModuleHelper::getModule('bulispielplan', $jinput->get('titel', 'default_value', 'filter'));
-        $db = JFactory::getDbo();
-
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
+        $moduleId = $jinput->getInt('module_id');
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'title', 'module', 'params']))
+            ->from($db->quoteName('#__modules'))
+            ->where($db->quoteName('id') . ' = ' . $moduleId)
+            ->where($db->quoteName('module') . ' = ' . $db->quote('mod_bulispielplan'))
+            ->where($db->quoteName('client_id') . ' = 0')
+            ->where($db->quoteName('published') . ' = 1');
+        $module = $db->setQuery($query)->loadObject();
+        if (!$module) {
+            throw new RuntimeException('Das Spielplan-Modul wurde nicht gefunden.');
+        }
         $jparams = new JRegistry();
-        $jparams->loadString($module->params);
-
+        $jparams->loadString((string) $module->params);
         $context = stream_context_create([
       'http' => [ 'timeout' => $jparams->get('timeout') ]
     ]);
 
         // Liga ermitteln
-        $query = 'SELECT '.$db->quoteName('liga').' FROM '.$db->quoteName('#__bulispielplan') . ' WHERE bezeichnung_webservice = ' . $db->quote($jparams->get('meinVerein'));
+        $teamAliases = [
+            'Werder Bremen' => 'SV Werder Bremen',
+            'TSG 1899 Hoffenheim' => 'TSG Hoffenheim',
+            'Bayer Leverkusen' => 'Bayer 04 Leverkusen',
+            'Arminia Bielefeld' => 'DSC Arminia Bielefeld',
+            'SG Dynamo Dresden' => 'Dynamo Dresden',
+        ];
+        $configuredTeam = (string) $jparams->get('meinVerein', '');
+        $configuredTeam = $teamAliases[$configuredTeam] ?? $configuredTeam;
+        $query = 'SELECT '.$db->quoteName('liga').' FROM '.$db->quoteName('#__bulispielplan') . ' WHERE bezeichnung_webservice = ' . $db->quote($configuredTeam);
         $db->setQuery($query);
-        $liga = $db->loadResult();
+        $liga = (string) $db->loadResult();
+        if ($liga === '') {
+            $liga = 'bl1';
+        }
 
         // Teams aus der Joomla Tabelle holen
         $query = 'SELECT '.$db->quoteName('bezeichnung_webservice').', '.$db->quoteName('bezeichnung_kurz').', '.$db->quoteName('bezeichnung_mittel').', '.$db->quoteName('dateiname_logo').' FROM '.$db->quoteName('#__bulispielplan') . ' WHERE liga = ' . $db->quote($liga) . ' ORDER BY bezeichnung_mittel';
         $db->setQuery($query);
         $teams = $db->loadAssocList('bezeichnung_webservice');
 
+        // Für historische Spielpläne alle bekannten Vereine als Logo-Mapping laden.
+        // Die Ligazugehörigkeit in der Stammtabelle bildet nur die aktuelle Saison ab.
+        $query = 'SELECT '.$db->quoteName('bezeichnung_webservice').', '.$db->quoteName('bezeichnung_kurz').', '.$db->quoteName('bezeichnung_mittel').', '.$db->quoteName('dateiname_logo')
+            .' FROM '.$db->quoteName('#__bulispielplan');
+        $db->setQuery($query);
+        $allTeams = $db->loadAssocList('bezeichnung_webservice');
+        foreach ($allTeams as &$teamData) {
+            $teamData['logo_module'] = 'mod_bulispielplan';
+        }
+        unset($teamData);
+
+        // Wenn das Ergebnis-Modul installiert ist, dessen bestätigten vollständigen
+        // Logo-Bestand bevorzugen. Der Spielplan bleibt ohne dieses Modul lauffähig.
+        $resultTable = $db->replacePrefix('#__buliergebnisse');
+        if (in_array($resultTable, $db->getTableList(), true)) {
+            $query = 'SELECT '.$db->quoteName('bezeichnung_webservice').', '.$db->quoteName('bezeichnung_kurz').', '.$db->quoteName('bezeichnung_mittel').', '.$db->quoteName('dateiname_logo')
+                .' FROM '.$db->quoteName('#__buliergebnisse');
+            $resultTeams = $db->setQuery($query)->loadAssocList('bezeichnung_webservice');
+            foreach ($resultTeams as $name => $teamData) {
+                $teamData['logo_module'] = 'mod_buliergebnisse';
+                $allTeams[$name] = $teamData;
+            }
+        }
+
         // Start HTML OUTPUT
-        $breite = $jparams->get('breite');
-        $table = "\r\n<table border='0' style='width:" . ($breite - 20) . "px;'>\r\n";
+        $table = "\r\n<table class='jbuli-team-selector'>\r\n";
 
         // Verein Dropdown
         $table .= "<tr><td align='left' valign='middle'><nobr><select id='verein_" . $module->id . "'>";
         $verein = '';
+        $requestedTeam = trim($jinput->getString('verein', ''));
+        $requestedTeam = $teamAliases[$requestedTeam] ?? $requestedTeam;
 
         foreach ($teams as $team) {
-            if ($team['bezeichnung_webservice'] == urldecode($jinput->get('verein', 'default_value', 'filter'))) {
-                $table .= '<option data-text="<strong style=\'font-weight:bold;\'>' . $team['bezeichnung_mittel'] . '</strong>" data-iconurl="'.JURI::root().'modules/mod_bulispielplan/images/' . $team['dateiname_logo'] . '" selected="selected">' . $team['bezeichnung_webservice'] . '</option>';
-                $verein = urldecode($jinput->get('verein', 'default_value', 'filter'));
-            } elseif ($team['bezeichnung_webservice'] == $jparams->get('meinVerein') && $jinput->get('verein', 'default_value', 'filter') == '') {
-                $table .= '<option data-text="<strong style=\'font-weight:bold;\'>' . $team['bezeichnung_mittel'] . '</strong>" data-iconurl="'.JURI::root().'modules/mod_bulispielplan/images/' . $team['dateiname_logo'] . '" selected="selected">' . $team['bezeichnung_webservice'] . '</option>';
-                $verein = $jparams->get('meinVerein');
-            } elseif ($team['bezeichnung_webservice'] == $jparams->get('meinVerein')) {
-                $table .= '<option data-text="<strong style=\'font-weight:bold;\'>' . $team['bezeichnung_mittel'] . '</strong>" data-iconurl="'.JURI::root().'modules/mod_bulispielplan/images/' . $team['dateiname_logo'] . '">' . $team['bezeichnung_webservice'] . '</option>';
-            } else {
-                $table .= '<option data-text="' . $team['bezeichnung_mittel'] . '" data-iconurl="'.JURI::root().'modules/mod_bulispielplan/images/' . $team['dateiname_logo'] . '">' . $team['bezeichnung_webservice'] . '</option>';
+            $teamName = (string) $team['bezeichnung_webservice'];
+            if (isset($teamAliases[$teamName])) {
+                continue;
             }
+            $selected = ($requestedTeam !== '' && $teamName === $requestedTeam)
+                || ($requestedTeam === '' && $teamName === $configuredTeam);
+            if ($selected) {
+                $verein = $teamName;
+            }
+            $table .= '<option value="' . htmlspecialchars($teamName, ENT_QUOTES, 'UTF-8') . '"'
+                . ($selected ? ' selected="selected"' : '') . '>'
+                . htmlspecialchars((string) $team['bezeichnung_mittel'], ENT_QUOTES, 'UTF-8')
+                . '</option>';
+        }
+
+        if ($verein === '' && !empty($teams)) {
+            $firstTeam = reset($teams);
+            $verein = $firstTeam['bezeichnung_webservice'];
         }
 
         $table .= "</select>&nbsp;&nbsp;&nbsp;<img id='bulispielplan_loading_" . $module->id . "' src='".JURI::root()."modules/mod_bulispielplan/images/ajax-loader.gif' style='display:none;'></nobr></td></tr></table>";
-        $table .= "<div style='height:" . $jparams->get('hoehe') . "px; width:" . ($breite + 20) . "px; overflow-y:auto; overflow-x:hidden; padding-right:5px; margin-top:20px;'>";
-        $table .= "<table border='0' style='width:" . ($breite) . "px;'>\r\n";
+        $table .= "<div class='jbuli-schedule-scroll' style='height:" . (int) $jparams->get('hoehe', 400) . "px; width:100%; overflow-y:auto; overflow-x:hidden; margin-top:1rem;'>";
+        $table .= "<table class='jbuli-schedule'>\r\n";
 
         $ligen = [$liga, 'dfb' . $jparams->get('season')];
         $partien = [];
 
-        foreach ($ligen as $liga) {
+        foreach ($ligen as $competitionIndex => $liga) {
             $cache = '';
-            $cachefile = JPATH_BASE . '/modules/mod_bulispielplan/cache_' . $liga . $jparams->get('season') . '.txt';
+            $paarungen = [];
+            $cachefile = JPATH_CACHE . '/mod_bulispielplan_' . preg_replace('/[^a-z0-9_-]/i', '', $liga) . '_' . (int) $jparams->get('season') . '.json';
             if (is_readable($cachefile)) {
                 $cache = file_get_contents($cachefile);
-                $paarungen = unserialize($cache);
+                $paarungen = self::decodeApiResponse($cache) ?: [];
             }
 
             // Daten neu holen wenn Refresh-Intervall erreicht
-            if ($cache == '' || $jparams->get('lastupdate') == '' || ($jparams->get('lastupdate') + ($jparams->get('refresh') * 60) < time())) {
+            $cacheExpired = !is_file($cachefile)
+                || filemtime($cachefile) + ((int) $jparams->get('refresh', 60) * 60) < time();
+            if ($cache === '' || $cacheExpired) {
                 $paarungenjson = self::fetchdata('https://www.openligadb.de/api/getmatchdata/' . $liga . '/' . $jparams->get('season'), $jparams->get('timeout'));
 
                 if ($paarungenjson != false && stristr($paarungenjson, 'Maximale Abfrageanzahl von 1000 Abfragen pro Tag erreicht!') == false && stristr($paarungenjson, 'An error has occurred') == false) {
-                    $paarungen = json_decode($paarungenjson);
-                    file_put_contents($cachefile, serialize($paarungen));
+                    $paarungen = self::decodeApiResponse($paarungenjson) ?: [];
+                    file_put_contents($cachefile, $paarungenjson, LOCK_EX);
 
-                    // set last update param
-                    $jparams->set('lastupdate_' . $liga, time());
-                    $module->params = $jparams->toString();
-                    $jtable = JTable::getInstance('module');
-                    $jtable->save((array)$module);
                 } else {
                     if ($cache == '') {
-                        // Keine Daten im Cache und Webservice nicht erreichbar
-                        throw new Exception($jparams->get('timeout_error'));
+                        // Zusatzwettbewerbe sind optional; die Liga trotzdem anzeigen.
+                        if ($competitionIndex === 0) {
+                            throw new RuntimeException((string) $jparams->get('timeout_error'));
+                        }
+                        continue;
                     } else {
-                        $paarungen = unserialize($cache);
+                        $paarungen = self::decodeApiResponse($cache) ?: [];
                     }
                 }
             }
 
-            foreach ($paarungen as $partie) {
+            foreach ((array) $paarungen as $partie) {
                 $partie->wettbewerb = $liga;
             }
 
-            $partien = array_merge($partien, $paarungen);
+            $partien = array_merge($partien, (array) $paarungen);
         }
 
         usort($partien, function ($a, $b) {
@@ -214,6 +291,8 @@ class modBulispielplanHelper
         // Output Spielplan
         $i = 0;
         $c = 0;
+        $id = '';
+        $hat_ergebnisse = false;
         foreach ($partien as $partie) {
             if ($partie->Team1->TeamName == $verein || $partie->Team2->TeamName == $verein) {
                 $c++;
@@ -272,8 +351,8 @@ class modBulispielplanHelper
                     }
                 }
 
-                if (isset($partie->matchIsFinished)) {
-                    if (!$partie->matchIsFinished && $alle_ergebnisse[0] instanceof stdClass) {
+                if (isset($partie->MatchIsFinished)) {
+                    if (!$partie->MatchIsFinished && isset($alle_ergebnisse[0]) && $alle_ergebnisse[0] instanceof stdClass) {
                         $tootip_text .= "</font>";
                     }
                 }
@@ -281,7 +360,8 @@ class modBulispielplanHelper
                 $tootip_text .= "</nobr>";
 
                 if ($goals <> '') {
-                    $ergebnisse .= JHtml::_('tooltip', $goals, 'Tore', '', $tootip_text);
+                    $goalTitle = htmlspecialchars(trim(strip_tags(str_replace('<br>', "\n", $goals))), ENT_QUOTES, 'UTF-8');
+                    $ergebnisse .= '<span title="' . $goalTitle . '">' . $tootip_text . '</span>';
                 } else {
                     $ergebnisse .= $tootip_text;
                 }
@@ -299,26 +379,34 @@ class modBulispielplanHelper
                 } elseif ($partie->wettbewerb == $ligen[1]) {
                     $kurz = 'PK';
                     $anzeigename = 'DFB Pokal';
-                    $bild = 'pokal.png';
+                    $bildSrc = JURI::root().'modules/mod_bulispielplan/images/pokal.png';
                 } elseif ($partie->wettbewerb == $ligen[2]) {
                     $kurz = 'CL';
                     $anzeigename = 'Champions League';
-                    $bild = 'cl.png';
+                    $bildSrc = JURI::root().'modules/mod_bulispielplan/images/cl.png';
                 }
 
                 if ($partie->Team1->TeamName == $verein) {
                     $wo = 'H';
-                    $anzeige = $partie->Team2->TeamName;
+                    $opponent = $partie->Team2;
+                    $anzeige = $opponent->TeamName;
                     if ($partie->wettbewerb == $ligen[0]) {
-                        $anzeige = $teams[$partie->Team2->TeamName]['bezeichnung_mittel'];
-                        $bild = $teams[$partie->Team2->TeamName]['dateiname_logo'];
+                        $teamData = $allTeams[$opponent->TeamName] ?? null;
+                        $anzeige = $teamData['bezeichnung_mittel'] ?? $opponent->TeamName;
+                        $bildSrc = $teamData
+                            ? JURI::root().'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
+                            : (string) ($opponent->TeamIconUrl ?? '');
                     }
                 } else {
                     $wo = 'A';
-                    $anzeige = $partie->Team1->TeamName;
+                    $opponent = $partie->Team1;
+                    $anzeige = $opponent->TeamName;
                     if ($partie->wettbewerb == $ligen[0]) {
-                        $anzeige = $teams[$partie->Team1->TeamName]['bezeichnung_mittel'];
-                        $bild = $teams[$partie->Team1->TeamName]['dateiname_logo'];
+                        $teamData = $allTeams[$opponent->TeamName] ?? null;
+                        $anzeige = $teamData['bezeichnung_mittel'] ?? $opponent->TeamName;
+                        $bildSrc = $teamData
+                            ? JURI::root().'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
+                            : (string) ($opponent->TeamIconUrl ?? '');
                     }
                 }
 
@@ -332,10 +420,13 @@ class modBulispielplanHelper
                     $tooltip = '';
                 }
 
+                $dateTitle = $tage[date("w", strtotime($partie->MatchDateTime))] . ' '
+                    . date('d.m.Y H:i', strtotime($partie->MatchDateTime)) . ' Uhr'
+                    . (isset($partie->Location) && is_object($partie->Location) && !empty($partie->Location->LocationStadium) ? ' – ' . $partie->Location->LocationStadium : '');
                 $table .= '<tr id="' . $module->id . '_' . $id . '"><td style="text-align:right; padding-right: 5px;">' . $kurz . '</td>
-        <td> ' . JHtml::_('tooltip', '<nobr>' . $tage[date("w", strtotime($partie->MatchDateTime))].' '.date('d.m.Y H:i', strtotime($partie->MatchDateTime)) . ' Uhr </nobr><br>' . (is_object($partie->Location) ? $partie->Location->LocationStadium : ''), $anzeigename, '', date('d.m.', strtotime($partie->MatchDateTime))) .  '</td>
-        <td><img style="width:20px; height:20px;" border="0" title="' . $anzeige . '" alt="' . $anzeige . '" src="'.JURI::root().'modules/mod_bulispielplan/images/' . $bild . '"></td>
-        <td><div title="' . $tooltip . '" style="cursor: default; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; width: ' . ($breite-130) . 'px">' . $anzeige . '</div></td>
+        <td title="' . htmlspecialchars($dateTitle, ENT_QUOTES, 'UTF-8') . '">' . date('d.m.', strtotime($partie->MatchDateTime)) . '</td>
+        <td><img style="width:20px; height:20px; object-fit:contain;" title="' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '" alt="" src="' . htmlspecialchars($bildSrc, ENT_QUOTES, 'UTF-8') . '"></td>
+        <td style="width:100%;"><div title="' . $tooltip . '" style="cursor:default; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' . $anzeige . '</div></td>
         <td>' . $wo . '</td><td>' . $ergebnisse . '</tr>';
             }
         }

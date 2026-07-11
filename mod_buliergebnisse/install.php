@@ -1,4 +1,6 @@
 <?php
+use Joomla\CMS\Factory as JFactory;
+use Joomla\Database\DatabaseInterface;
 
 class mod_buliergebnisseInstallerScript
 {
@@ -7,7 +9,7 @@ class mod_buliergebnisseInstallerScript
      *
      * @param   JAdapterInstance  $adapter  The object responsible for running this script
      */
-    public function __construct(JAdapterInstance $adapter)
+    public function __construct($adapter)
     {
     }
 
@@ -19,7 +21,7 @@ class mod_buliergebnisseInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function preflight($route, JAdapterInstance $adapter)
+    public function preflight($route, $adapter)
     {
     }
 
@@ -31,7 +33,7 @@ class mod_buliergebnisseInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function postflight($route, JAdapterInstance $adapter)
+    public function postflight($route, $adapter)
     {
     }
 
@@ -42,7 +44,7 @@ class mod_buliergebnisseInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function install(JAdapterInstance $adapter)
+    public function install($adapter)
     {
         $this->setupDatabase();
     }
@@ -54,7 +56,7 @@ class mod_buliergebnisseInstallerScript
      *
      * @return  boolean  True on success
      */
-    public function update(JAdapterInstance $adapter)
+    public function update($adapter)
     {
         $this->setupDatabase();
     }
@@ -64,26 +66,26 @@ class mod_buliergebnisseInstallerScript
      *
      * @param   JAdapterInstance  $adapter  The object responsible for running this script
      */
-    public function uninstall(JAdapterInstance $adapter)
+    public function uninstall($adapter)
     {
-        $db = JFactory::getDbo();
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
         $query = 'DROP TABLE '.$db->quoteName('#__buliergebnisse');
 
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
     }
 
     private function setupDatabase()
     {
-        $db = JFactory::getDbo();
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
         $query = 'CREATE TABLE IF NOT EXISTS '.$db->quoteName('#__buliergebnisse').' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, bezeichnung_webservice VARCHAR(100), bezeichnung_kurz VARCHAR(100), bezeichnung_mittel VARCHAR(100), dateiname_logo VARCHAR(100))';
 
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
 
         $query = 'TRUNCATE TABLE '.$db->quoteName('#__buliergebnisse');
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
 
         $query = "INSERT INTO ".$db->quoteName('#__buliergebnisse')." VALUES
 				(1, 'VfL Wolfsburg', 'WOL', 'Wolfsburg', 'wolfsburg.png'), 
@@ -236,11 +238,18 @@ class mod_buliergebnisseInstallerScript
 			    (149, 'VfL Osnabrück', 'OSN', 'Osnabrück', 'osnabrueck.png'),
 			    (150, 'SV Wehen Wiesbaden', 'WIS', 'Wiesbaden', 'wiesbaden.png'),
 			    (151, 'Karlsruher SC', 'KSC', 'Karlsruhe', 'karlsruhe.png'),
-				(152, 'FC Hansa Rostock', 'ROS', 'Rostock', 'rostock.png');
+			    (152, 'FC Hansa Rostock', 'ROS', 'Rostock', 'rostock.png'),
+                (153, 'SV Werder Bremen', 'SVW', 'Bremen', 'bremen.png'),
+                (154, 'TSG Hoffenheim', 'TSG', 'Hoffenheim', 'hoffenheim.png'),
+                (155, 'SV 07 Elversberg', 'ELV', 'Elversberg', 'elversberg.png'),
+                (156, 'Dynamo Dresden', 'SGD', 'Dresden', 'dresden.png'),
+                (157, 'Energie Cottbus', 'FCE', 'Cottbus', 'cottbus.svg'),
+                (158, 'FC Energie Cottbus', 'FCE', 'Cottbus', 'cottbus.svg'),
+                (159, 'DSC Arminia Bielefeld', 'DSC', 'Bielefeld', 'bielefeld.png');
 			   ";
 
         $db->setQuery($query);
-        $db->query();
+        $db->execute();
 
         $cachefile = JPATH_BASE."/../modules/mod_buliergebnisse/cache.txt";
         if (is_readable($cachefile)) {

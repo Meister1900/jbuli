@@ -1,4 +1,10 @@
 <?php
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\HTML\HTMLHelper as JHtml;
+use Joomla\Registry\Registry as JRegistry;
+use Joomla\CMS\Uri\Uri as JURI;
+use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
+use Joomla\Database\DatabaseInterface;
 /**
  * helper.php - (c) Markus Krupp
  * Die Daten werden vom Webservice openligadb.de bereitgestellt.
@@ -16,7 +22,27 @@ class modBulitabelleHelper
         JHtml::_('jquery.framework');
 
         $app = JFactory::getApplication();
-        $document = JFactory::getDocument();
+        $document = $app->getDocument();
+        $document->addStyleDeclaration(
+            '#bulitabelle_' . (int) $module->id . ' { width:100%; max-width:none; overflow-x:auto; container-type:inline-size; }'
+            . '#bulitabelle_' . (int) $module->id . ' table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }'
+            . '#bulitabelle_' . (int) $module->id . ' th,'
+            . '#bulitabelle_' . (int) $module->id . ' td { vertical-align:middle; white-space:nowrap; padding:5px 6px; }'
+            . '#bulitabelle_' . (int) $module->id . ' thead th { font-weight:800; border-bottom:2px solid currentColor; padding-top:7px; padding-bottom:7px; }'
+            . '#bulitabelle_' . (int) $module->id . ' tbody tr { border-bottom:1px solid rgba(127,127,127,.3); }'
+            . '#bulitabelle_' . (int) $module->id . ' tbody tr:hover { background:rgba(127,127,127,.08); }'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-logo { width:32px; min-width:32px; padding-left:2px; padding-right:6px; }'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-logo img { display:block; width:20px; height:20px; object-fit:contain; }'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-team { width:100%; white-space:normal; text-align:left !important; padding-right:12px; }'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-points { font-weight:900; color:#c40018; text-align:center; }'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-compact { display:none; }'
+            . '@container (max-width:620px) {'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-optional { display:none; }'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-compact { display:table-cell; }'
+            . '#bulitabelle_' . (int) $module->id . ' th,'
+            . '#bulitabelle_' . (int) $module->id . ' td { font-size:0.88rem; padding-left:4px; padding-right:4px; }'
+            . '}'
+        );
 
         $document->addScriptDeclaration('
       jQuery(document).ready(function() {
@@ -66,15 +92,19 @@ class modBulitabelleHelper
      */
     public static function fetchdata($url, $timeout)
     {
+        $url = str_replace('https://www.openligadb.de/api/', 'https://api.openligadb.de/', $url);
         if (function_exists('curl_version')) {
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, min(5, (int) $timeout));
+            curl_setopt($curl, CURLOPT_TIMEOUT, max(1, (int) $timeout));
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_USERAGENT, 'Joomla/6 mod_bulitabelle');
             $content = curl_exec($curl);
+            $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
             curl_close($curl);
-
-            return $content;
+            return $content !== false && $status >= 200 && $status < 300 ? $content : false;
         } elseif (ini_get('allow_url_fopen')) {
             $context = stream_context_create([
         'http' => [ 'timeout' => $timeout ]
@@ -86,6 +116,24 @@ class modBulitabelleHelper
         return false;
     }
 
+    private static function decodeApiResponse(string $json)
+    {
+        $value = json_decode($json);
+        if (json_last_error() !== JSON_ERROR_NONE) { return null; }
+        return self::normaliseApiKeys($value);
+    }
+
+    private static function normaliseApiKeys($value)
+    {
+        if (is_array($value)) { return array_map([self::class, 'normaliseApiKeys'], $value); }
+        if (is_object($value)) {
+            $normalised = new stdClass();
+            foreach (get_object_vars($value) as $key => $item) { $normalised->{ucfirst($key)} = self::normaliseApiKeys($item); }
+            return $normalised;
+        }
+        return $value;
+    }
+
     /**
      * AJAX Endpoint
      */
@@ -93,7 +141,7 @@ class modBulitabelleHelper
     {
         $jinput = JFactory::getApplication()->input;
         $module = JModuleHelper::getModule('bulitabelle', $jinput->get('titel', 'default_value', 'filter'));
-        $db = JFactory::getDbo();
+        $db = JFactory::getContainer()->get(DatabaseInterface::class);
 
         $jparams = new JRegistry();
         $jparams->loadString($module->params);
@@ -105,7 +153,7 @@ class modBulitabelleHelper
         $liga = $jparams->get('league');
 
         // Tabelle aus der Joomla Tabelle holen
-        $query = 'SELECT '.$db->quoteName('team').', '.$db->quoteName('spiele').', '.$db->quoteName('tore').', '.$db->quoteName('gegentore').', '.$db->quoteName('punkte') .' FROM '.$db->quoteName('#__bulitabelle') . 'WHERE modul_id = ' . $module->id . ' ORDER BY punkte DESC, tore-gegentore DESC, tore DESC';
+        $query = 'SELECT '.$db->quoteName('team').', '.$db->quoteName('spiele').', '.$db->quoteName('gewonnen').', '.$db->quoteName('unentschieden').', '.$db->quoteName('verloren').', '.$db->quoteName('tore').', '.$db->quoteName('gegentore').', '.$db->quoteName('punkte') .' FROM '.$db->quoteName('#__bulitabelle') . ' WHERE modul_id = ' . (int) $module->id . ' ORDER BY punkte DESC, tore-gegentore DESC, tore DESC';
 
         $db->setQuery($query);
         $tabelle = $db->loadAssocList();
@@ -121,16 +169,10 @@ class modBulitabelleHelper
                 $spieltag = 1;
             }
         } else {
-            $spieltag = json_decode($spieltag);
+            $spieltag = self::decodeApiResponse($spieltag);
             $spieltag = $spieltag->GroupOrderID;
 
-            // Aktueller Spieltag hat sich geändert -> Als Parameter lastCurrentMatchday speichern
-            if ($jparams->get('lastCurrentMatchday') != $spieltag) {
-                $jparams->set('lastCurrentMatchday', $spieltag);
-                $module->params = $jparams->toString();
-                $dbtable = JTable::getInstance('module');
-                $dbtable->save((array)$module);
-            }
+            // Nicht mehr über die in Joomla 6 entfernte JTable-Modul-API speichern.
         }
 
         // Tabelle aktualisieren falls Refresh-Intervall erreicht
@@ -138,13 +180,15 @@ class modBulitabelleHelper
             $paarungen = self::fetchdata('https://www.openligadb.de/api/getmatchdata/' . $liga . '/' . $jparams->get('season'), $jparams->get('timeout'));
 
             if ($paarungen != false && stristr($paarungen, 'Maximale Abfrageanzahl von 1000 Abfragen pro Tag erreicht!') == false && stristr($paarungen, 'An error has occurred') == false) {
-                $paarungen = json_decode($paarungen);
+                $paarungen = self::decodeApiResponse($paarungen);
                 $tabelle = [];
                 $i = 0;
                 foreach ($paarungen as $partie) {
                     $i++;
                     $alle_ergebnisse = $partie->MatchResults;
-                    if ($alle_ergebnisse[0] instanceof stdClass) {
+                    if (isset($alle_ergebnisse[0]) && $alle_ergebnisse[0] instanceof stdClass) {
+                        $tore_team1 = null;
+                        $tore_team2 = null;
                         foreach ($alle_ergebnisse as $ergebnis) {
                             if ($ergebnis->ResultName == 'Endergebnis') {
                                 $tore_team1 = $ergebnis->PointsTeam1;
@@ -154,28 +198,51 @@ class modBulitabelleHelper
                             }
                         }
 
+                        if ($tore_team1 === null || $tore_team2 === null) {
+                            continue;
+                        }
+
+                        if (!isset($tabelle[$partie->Team1->TeamName])) {
+                            $tabelle[$partie->Team1->TeamName] = ['spiele' => 0, 'gewonnen' => 0, 'unentschieden' => 0, 'verloren' => 0, 'punkte' => 0, 'tore' => 0, 'gegentore' => 0];
+                        }
+                        if (!isset($tabelle[$partie->Team2->TeamName])) {
+                            $tabelle[$partie->Team2->TeamName] = ['spiele' => 0, 'gewonnen' => 0, 'unentschieden' => 0, 'verloren' => 0, 'punkte' => 0, 'tore' => 0, 'gegentore' => 0];
+                        }
+
                         if ($tore_team1 == $tore_team2) {
                             $punkte_team1 = 1;
                             $punkte_team2 = 1;
+                            [$sieg1, $remis1, $niederlage1] = [0, 1, 0];
+                            [$sieg2, $remis2, $niederlage2] = [0, 1, 0];
                         } elseif ($tore_team1 > $tore_team2) {
                             $punkte_team1 = 3;
                             $punkte_team2 = 0;
+                            [$sieg1, $remis1, $niederlage1] = [1, 0, 0];
+                            [$sieg2, $remis2, $niederlage2] = [0, 0, 1];
                         } elseif ($tore_team1 < $tore_team2) {
                             $punkte_team1 = 0;
                             $punkte_team2 = 3;
+                            [$sieg1, $remis1, $niederlage1] = [0, 0, 1];
+                            [$sieg2, $remis2, $niederlage2] = [1, 0, 0];
                         }
 
                         $tabelle[$partie->Team1->TeamName] = ['spiele' => $tabelle[$partie->Team1->TeamName]['spiele'] + 1,
+              'gewonnen' => $tabelle[$partie->Team1->TeamName]['gewonnen'] + $sieg1,
+              'unentschieden' => $tabelle[$partie->Team1->TeamName]['unentschieden'] + $remis1,
+              'verloren' => $tabelle[$partie->Team1->TeamName]['verloren'] + $niederlage1,
               'punkte' => $tabelle[$partie->Team1->TeamName]['punkte'] + $punkte_team1,
               'tore' => $tabelle[$partie->Team1->TeamName]['tore'] + $tore_team1,
               'gegentore' => $tabelle[$partie->Team1->TeamName]['gegentore'] + $tore_team2];
                         $tabelle[$partie->Team2->TeamName] = ['spiele' => $tabelle[$partie->Team2->TeamName]['spiele'] + 1,
+              'gewonnen' => $tabelle[$partie->Team2->TeamName]['gewonnen'] + $sieg2,
+              'unentschieden' => $tabelle[$partie->Team2->TeamName]['unentschieden'] + $remis2,
+              'verloren' => $tabelle[$partie->Team2->TeamName]['verloren'] + $niederlage2,
               'punkte' => $tabelle[$partie->Team2->TeamName]['punkte'] + $punkte_team2,
               'tore' => $tabelle[$partie->Team2->TeamName]['tore'] + $tore_team2,
               'gegentore' => $tabelle[$partie->Team2->TeamName]['gegentore'] + $tore_team1];
                     } elseif ($i<10) {
-                        $tabelle[$partie->Team1->TeamName] = ['spiele' => 0, 'punkte' => 0, 'tore' => 0, 'gegentore' => 0];
-                        $tabelle[$partie->Team2->TeamName] = ['spiele' => 0, 'punkte' => 0, 'tore' => 0, 'gegentore' => 0];
+                        $tabelle[$partie->Team1->TeamName] = ['spiele' => 0, 'gewonnen' => 0, 'unentschieden' => 0, 'verloren' => 0, 'punkte' => 0, 'tore' => 0, 'gegentore' => 0];
+                        $tabelle[$partie->Team2->TeamName] = ['spiele' => 0, 'gewonnen' => 0, 'unentschieden' => 0, 'verloren' => 0, 'punkte' => 0, 'tore' => 0, 'gegentore' => 0];
                         if ($i == 9) {
                             break;
                         }
@@ -185,24 +252,18 @@ class modBulitabelleHelper
                 if ($module->id) {
                     $sql = 'DELETE FROM '.$db->quoteName('#__bulitabelle') . ' WHERE modul_id = ' . $module->id;
                     $db->setQuery($sql);
-                    $db->query();
+                    $db->execute();
                 }
 
                 foreach ($tabelle as $name=>$team) {
                     if ($name == 'SV Sandhausen' && $jparams->get('season') == '2015') {
                         $team['punkte'] -= 3;
                     }
-                    $sql = sprintf("INSERT INTO " .$db->quoteName('#__bulitabelle'). "(team, spiele, tore, gegentore, punkte, modul_id) VALUES('%s',%s,%s,%s,%s,%s)", $name, $team['spiele'], $team['tore'], $team['gegentore'], $team['punkte'], $module->id);
-                    $db->setQuery($sql);
-                    $db->query();
-                }
-
-                if (isset($jparams) && isset($module)) {
-                    // set last update param
-                    $jparams->set('lastupdate', time());
-                    $module->params = $jparams->toString();
-                    $table = JTable::getInstance('module');
-                    $table->save((array)$module);
+                    $sql = $db->getQuery(true)
+                        ->insert($db->quoteName('#__bulitabelle'))
+                        ->columns($db->quoteName(['team', 'spiele', 'gewonnen', 'unentschieden', 'verloren', 'tore', 'gegentore', 'punkte', 'modul_id']))
+                        ->values(implode(',', [$db->quote($name), (int) $team['spiele'], (int) $team['gewonnen'], (int) $team['unentschieden'], (int) $team['verloren'], (int) $team['tore'], (int) $team['gegentore'], (int) $team['punkte'], (int) $module->id]));
+                    $db->setQuery($sql)->execute();
                 }
 
                 $db->setQuery($query);
@@ -254,7 +315,7 @@ class modBulitabelleHelper
                 $paarungen = self::fetchdata('https://www.openligadb.de/api/getmatchdata/' . $liga . '/' . $saison . '/' . $spieltag, $jparams->get('timeout'));
 
                 if ($paarungen != false && stristr($paarungen, 'Maximale Abfrageanzahl von 1000 Abfragen pro Tag erreicht!') == false) {
-                    $paarungen = json_decode($paarungen);
+                    $paarungen = self::decodeApiResponse($paarungen);
                     unset($paarungen_cache[$spieltag . $liga . $saison]);
                     $paarungen_cache[$spieltag . $liga . $saison][$lastchange] = $paarungen;
                     file_put_contents($cachefile, serialize($paarungen_cache));
@@ -291,19 +352,24 @@ class modBulitabelleHelper
       'FC Augsburg' => 'Augsburg',
       'Hannover 96' => 'Hannover',
       'TSG 1899 Hoffenheim' => 'Hoffenheim',
+      'TSG Hoffenheim' => 'Hoffenheim',
       'Eintracht Frankfurt' => 'Frankfurt',
       'Werder Bremen' => 'Bremen',
+      'SV Werder Bremen' => 'Bremen',
       'VfB Stuttgart' => 'Stuttgart',
       'SC Freiburg' => 'Freiburg',
       '1. FC Nürnberg' => 'Nürnberg',
       'Hamburger SV' => 'Hamburg',
       'Eintracht Braunschweig' => 'Braunschweig',
       'Energie Cottbus' => 'Cottbus',
+      'FC Energie Cottbus' => 'Cottbus',
       'Arminia Bielefeld' => 'Bielefeld',
+      'DSC Arminia Bielefeld' => 'Bielefeld',
       'Karlsruher SC' => 'Karlsruhe',
       '1. FC Kaiserslautern' => 'Lautern',
       'VfL Bochum' => 'Bochum',
       'SG Dynamo Dresden' => 'Dresden',
+      'Dynamo Dresden' => 'Dresden',
       '1. FC Köln' => 'Köln',
       'Erzgebirge Aue' => 'Aue',
       'FC Ingolstadt 04' => 'Ingolstadt',
@@ -328,6 +394,7 @@ class modBulitabelleHelper
       'SV Wehen Wiesbaden' => 'Wiesbaden',
       'Würzburger Kickers' => 'Würzburg',
       'FC Hansa Rostock' => 'Rostock',
+      'SV 07 Elversberg' => 'Elversberg',
     ];
 
         if (count($tabelle) == 0) {
@@ -336,7 +403,17 @@ class modBulitabelleHelper
 
         $platz = 1;
         $style = 'text-align:right; vertical-align:middle; margin-right:2px;';
-        $htmloutput = '<table style="border-collapse: collapse;"><thead><tr><th style="'.$style.'">Pl.</th><th colspan=2" style="text-align:left; vertical-align: middle; margin-right:2px;">Team</th><th style="'.$style.'">Sp.</th><th style="'.$style.'">Tore</th><th style="'.$style.'">Pkt</th></tr></thead><tbody>';
+        $htmloutput = '<table class="jbuli-standings"><thead><tr>'
+            . '<th style="'.$style.'">Pl.</th><th aria-label="Logo"></th><th style="text-align:left;">Team</th>'
+            . '<th style="'.$style.'">Sp.</th>'
+            . '<th style="'.$style.'">G</th>'
+            . '<th style="'.$style.'">U</th>'
+            . '<th style="'.$style.'">V</th>'
+            . '<th class="jbuli-optional" style="'.$style.'">T</th>'
+            . '<th class="jbuli-optional" style="'.$style.'">GT</th>'
+            . '<th class="jbuli-optional" style="'.$style.'">+/-</th>'
+            . '<th class="jbuli-compact" style="'.$style.'">Tore</th>'
+            . '<th style="'.$style.'">Pkt</th></tr></thead><tbody>';
 
         foreach ($tabelle as $row) {
             $diff = (int) $row['tore'] - (int) $row['gegentore'];
@@ -358,7 +435,26 @@ class modBulitabelleHelper
                 $tdstyle .= ' border-bottom: 1px solid #A6A6A6;';
             }
 
-            $htmloutput .= '<tr style="' . $trstyle . '"><td style="'.$tdstyle.'"><b>' .$platz . '&nbsp;</b></td><td style="'.$tdstyle.'"><img style="width:20px; height:20px; padding-right:5px;" border="0" title="'.$ersetzen[$row['team']].'" alt="'.$ersetzen[$row['team']].'" src="'.JURI::root().'modules/mod_bulitabelle/images/' . strtolower(str_replace(['ü', 'ä', 'ö', ' '], ['ue', 'ae', 'oe', ''], $ersetzen[$row['team']])) . '.png"></td><td style="'.$tdstyle.' text-align:left !important;">' . $ersetzen[$row['team']] . '</td><td style="'.$tdstyle.'">' . $row['spiele'] . '</td><td style="'.$tdstyle.'">' . $diff . '</td><td style="'.$tdstyle.'">' . $row['punkte'] . '</td></tr>';
+            $displayName = $ersetzen[$row['team']] ?? $row['team'];
+            $logo = strtolower(str_replace(['ü', 'ä', 'ö', ' '], ['ue', 'ae', 'oe', ''], $displayName)) . '.png';
+            if ($displayName === 'Cottbus') {
+                $logo = 'cottbus.svg';
+            } elseif ($displayName === 'St. Pauli') {
+                $logo = 'st.pauli.png';
+            }
+            $htmloutput .= '<tr style="' . $trstyle . '">'
+                . '<td style="'.$tdstyle.'"><b>' .$platz . '&nbsp;</b></td>'
+                . '<td class="jbuli-logo"><img loading="lazy" title="'.htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8').'" alt="" src="'.JURI::root().'modules/mod_bulitabelle/images/' . rawurlencode($logo) . '"></td>'
+                . '<td class="jbuli-team" style="'.$tdstyle.'">' . htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') . '</td>'
+                . '<td style="'.$tdstyle.'">' . (int) $row['spiele'] . '</td>'
+                . '<td style="'.$tdstyle.'">' . (int) $row['gewonnen'] . '</td>'
+                . '<td style="'.$tdstyle.'">' . (int) $row['unentschieden'] . '</td>'
+                . '<td style="'.$tdstyle.'">' . (int) $row['verloren'] . '</td>'
+                . '<td class="jbuli-optional" style="'.$tdstyle.'">' . (int) $row['tore'] . '</td>'
+                . '<td class="jbuli-optional" style="'.$tdstyle.'">' . (int) $row['gegentore'] . '</td>'
+                . '<td class="jbuli-optional" style="'.$tdstyle.'">' . $diff . '</td>'
+                . '<td class="jbuli-compact" style="'.$tdstyle.'">' . (int) $row['tore'] . ':' . (int) $row['gegentore'] . '</td>'
+                . '<td class="jbuli-points" style="'.$tdstyle.';font-weight:900;color:#c40018;text-align:center;">' . (int) $row['punkte'] . '</td></tr>';
 
             $platz++;
         }
