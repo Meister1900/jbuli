@@ -3,9 +3,9 @@ Responsive Fußball-Ergebnisse, Spielpläne und Tabellen für Joomla 6. Die Spie
 
 ## Aktuelle Versionen
 
-- Ergebnismodul `2.1.10`
-- Spielplanmodul `2.1.18`
-- Tabellenmodul `2.1.8`
+- Ergebnismodul `2.1.12`
+- Spielplanmodul `2.1.19`
+- Tabellenmodul `2.1.9`
 
 ## Voraussetzungen und Installation
 
@@ -15,6 +15,8 @@ Responsive Fußball-Ergebnisse, Spielpläne und Tabellen für Joomla 6. Die Spie
 - Ausgehender HTTPS-Zugriff auf `api.openligadb.de`
 
 Die eigene Joomla-Seite darf über HTTP laufen. HTTPS wird nur serverseitig für OpenLigaDB verwendet. Die ZIP-Datei des Moduls wird über **System → Installieren → Erweiterungen** installiert und kann dort auch als Update eingespielt werden.
+
+Die automatische Joomla-Aktualisierung lädt sowohl die Update-Metadaten als auch die per SHA-256 abgesicherten ZIP-Pakete direkt aus diesem GitHub-Repository. Die Prüfsumme jedes Pakets steht in der zugehörigen Datei im Verzeichnis `updater`.
 
 
 ## BUNDESLIGA SPIELPLAN-MODUL FÜR JOOMLA 6

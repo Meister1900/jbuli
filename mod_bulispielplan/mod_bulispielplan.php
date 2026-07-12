@@ -16,7 +16,7 @@ use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
     $strHTMLOutput = '';
     try {
         $ergebnisse = new modBulispielplanHelper($module, $params);
-        $strHTMLOutput = "\r\n<!-- Bundesliga-Spielplan 2.1.18 - (c) Markus Krupp - https://www.jbuli.de/-->\r\n";
+        $strHTMLOutput = "\r\n<!-- Bundesliga-Spielplan 2.1.19 - (c) Markus Krupp - https://www.jbuli.de/-->\r\n";
         $strHTMLOutput .= '<div id="bulispielplan_' . $module->id . '"><span id="bulispielplan_loading_' . $module->id . '" class="jbuli-loader" role="status" aria-label="Wird geladen" style="display:block; margin:12px auto;"></span></div>';
     } catch (Throwable $e) {
         $strHTMLOutput = '<div class="alert alert-warning">'

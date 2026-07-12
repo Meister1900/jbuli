@@ -1,3 +1,5 @@
+ * 2.1.12 - Update-Metadaten vollständig auf GitHub Raw umgestellt
+ * 2.1.11 - Automatischer zweiter API-Versuch bei kaltem Spieltags-Cache
  * 2.1.10 - Race-sichere Spieltags-Caches mit dauerhaftem Fallback bei API-Ausfällen
  * 2.1.9 - Moderne templatefreundliche CSS-Ladeanimation statt GIF
  * 2.1.8 - No-Cache-AJAX-Antworten und moderne Torschützen-Tooltips

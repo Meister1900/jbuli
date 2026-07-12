@@ -2,12 +2,12 @@
 <extension type="module" version="6.0" client="site" method="upgrade">
 	<name>Bundesliga-Ergebnisse</name>
 	<author>Markus Krupp</author>
-	<creationDate>20.09.2021</creationDate>
-	<copyright>(C) 2021 Markus Krupp</copyright>
+	<creationDate>12.07.2026</creationDate>
+	<copyright>(C) 2026 Markus Krupp</copyright>
 	<license>GNU/GPL</license>
 	<authorEmail>webmaster@krupphome.de</authorEmail>
-	<authorUrl>https://www.jbuli.de/</authorUrl>
-	<version>2.1.10</version>
+	<authorUrl>https://www.krupphome.de/</authorUrl>
+	<version>2.1.12</version>
 	<description>Bundesliga Ergebnisse für Joomla</description>
 	<namespace path="src">Jbuli\Module\Buliergebnisse</namespace>
   <scriptfile>install.php</scriptfile>
@@ -89,6 +89,6 @@
 		</fields>
 	</config>
 	<updateservers>
-		<server type="extension" priority="1" name="mod_buliergebnisse Updates">https://www.jbuli.de/updater/mod_buliergebnisse.xml</server>
+		<server type="extension" priority="1" name="mod_buliergebnisse Updates">https://raw.githubusercontent.com/Meister1900/jbuli/master/updater/mod_buliergebnisse.xml</server>
 	</updateservers>
 </extension>

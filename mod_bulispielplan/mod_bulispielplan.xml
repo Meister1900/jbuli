@@ -2,12 +2,12 @@
 <extension type="module" version="6.0" client="site" method="upgrade">
 	<name>Bundesliga-Spielplan</name>
 	<author>Markus Krupp</author>
-	<creationDate>13.11.2022</creationDate>
-	<copyright>(C) 2022 Markus Krupp</copyright>
+	<creationDate>12.07.2026</creationDate>
+	<copyright>(C) 2026 Markus Krupp</copyright>
 	<license>GNU/GPL</license>
 	<authorEmail>webmaster@krupphome.de</authorEmail>
-	<authorUrl>https://www.jbuli.de/</authorUrl>
-	<version>2.1.18</version>
+	<authorUrl>https://www.krupphome.de/</authorUrl>
+	<version>2.1.19</version>
 	<description>Bundesliga Spielplan für Joomla</description>
 	<namespace path="src">Jbuli\Module\Bulispielplan</namespace>
   <scriptfile>install.php</scriptfile>
@@ -82,6 +82,6 @@
 		</fields>
 	</config>
 	<updateservers>
-		<server type="extension" priority="1" name="mod_bulispielplan Updates">https://www.jbuli.de/updater/mod_bulispielplan.xml</server>
+		<server type="extension" priority="1" name="mod_bulispielplan Updates">https://raw.githubusercontent.com/Meister1900/jbuli/master/updater/mod_bulispielplan.xml</server>
 	</updateservers>
 </extension>

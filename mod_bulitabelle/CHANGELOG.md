@@ -1,3 +1,4 @@
+ * 2.1.9 - Update-Metadaten vollständig auf GitHub Raw umgestellt
  * 2.1.8 - Moderne templatefreundliche CSS-Ladeanimation statt GIF
  * 2.1.7 - No-Cache-Header für AJAX-Antworten
  * 2.1.6 - Eigene Live-Cachedatei je Modulinstanz

@@ -537,6 +537,13 @@ class modBuliergebnisseHelper
 
         $json = self::fetchdata($url, $timeout);
         $decoded = is_string($json) ? self::decodeApiResponse($json) : null;
+        // Ein Strg+F5 wirkte bisher oft nur deshalb, weil es einen zweiten
+        // API-Versuch auslöste. Bei einem kalten Cache erledigt das Modul diesen
+        // einmaligen Retry nun selbst und lässt OpenLigaDB etwas mehr Zeit.
+        if ((!is_array($decoded) || $decoded === []) && $cached === []) {
+            $json = self::fetchdata($url, max(5, $timeout + 2));
+            $decoded = is_string($json) ? self::decodeApiResponse($json) : null;
+        }
         if (is_array($decoded) && $decoded !== []) {
             self::writeCacheAtomically($cachefile, $json);
             $cached = $decoded;
