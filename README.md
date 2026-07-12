@@ -1,7 +1,7 @@
 # Fußball Bundesliga Module für Joomla
 Fußball Ergebnisse, Tabellen und Spielpläne für Joomla
 
-http://www.jbuli.de/
+http://www.krupphome.de/
 
 
 ## BUNDESLIGA SPIELPLAN-MODUL FÜR JOOMLA 6
@@ -18,7 +18,7 @@ Features
 - Cache beim Abrufen der Spieldaten vom Webservice (OpenLigaDB hat ein Limit von 1000 Requests pro Tag und IP)
 - Vereinsnamen können in der Datenbanktabelle angepasst werden
 - Breite und Höhe des Moduls können im Backend konfiguriert werden
-- Mit der aktuellen Joomla Version 3.8 und PHP 7 kompatibel
+- Mit der aktuellen Joomla Version 6 und PHP 8 kompatibel
 - Garantiert werbe- und kostenfrei!
 
 
@@ -38,12 +38,12 @@ Features
 - Die Daten des gewählten Spieltags werden im Hintergrund per AJAX nachgeladen
 - Cache beim Abrufen der Spieldaten vom Webservice (OpenLigaDB hat ein Limit von 1000 Requests pro Tag und IP)
 - Vereinsnamen und Kürzel können in der Datenbanktabelle angepasst werden
-- Mit der aktuellen Joomla Version 3.8 und PHP 7 kompatibel
+- Mit der aktuellen Joomla Version 6 und PHP 8 kompatibel
 - Garantiert werbe- und kostenfrei!
 
 
 
-## BUNDESLIGA TABELLEN-MODUL FÜR JOOMLA 3
+## BUNDESLIGA TABELLEN-MODUL FÜR JOOMLA 6
 Joomla Modul zur Anzeige der aktuellen Tabelle der 1. und 2. Fussball Bundesliga
 
 Features
@@ -53,5 +53,5 @@ Features
 - Vereine die ein Live-Spiel haben können farblich hervorgehoben werden
 - Liga und Saison können im Backend eingestellt werden
 - Der eigene Verein kann per CSS hervorgehoben werden
-- Mit der aktuellen Joomla Version 3.8 und PHP 7 kompatibel
+- Mit der aktuellen Joomla Version 6 und PHP 8 kompatibel
 - Garantiert werbefrei!
