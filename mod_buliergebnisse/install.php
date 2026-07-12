@@ -252,9 +252,52 @@ class mod_buliergebnisseInstallerScript
         $db->setQuery($query);
         $db->execute();
 
-        $cachefile = JPATH_BASE."/../modules/mod_buliergebnisse/cache.txt";
-        if (is_file($cachefile)) {
-            @unlink($cachefile);
+        // Aktuelle internationale OpenLigaDB-Bezeichnungen. Bereits im großen
+        // historischen Grundbestand vorhandene Namen werden hier nicht dupliziert.
+        $internationalTeams = [
+            ['AFC Sunderland', 'SUN', 'Sunderland', 'sunderland.png'],
+            ['Aston Villa', 'AVL', 'Aston Villa', 'villa.png'],
+            ['Brentford F.C.', 'BRE', 'Brentford', 'brentford.png'],
+            ['Brighton & Hove Albion F.C.', 'BHA', 'Brighton', 'brighton.png'],
+            ['Crystal Palace FC', 'CRY', 'Crystal Palace', 'palace.png'],
+            ['FC Liverpool', 'LIV', 'Liverpool', 'liverpool.png'],
+            ['Fulham FC', 'FUL', 'Fulham', 'fulham.svg'],
+            ['Leeds United', 'LEE', 'Leeds', 'leeds.png'],
+            ['Manchester United FC', 'MUN', 'ManUnited', 'manu.png'],
+            ['Newcastle United FC', 'NEW', 'Newcastle', 'newcastle.png'],
+            ['Nottingham Forest', 'NFO', 'Nottingham', 'nottingham.png'],
+            ['Wolverhampton Wanderers FC', 'WOL', 'Wolverhampton', 'wolverhampton.png'],
+            ['Athletic Club', 'ATH', 'Bilbao', 'bilbao.png'],
+            ['Atlético Madrid', 'ATM', 'Atlético', 'atletico.png'],
+            ['Elche CF', 'ELC', 'Elche', 'elche.png'],
+            ['Racing Santander', 'RAC', 'Santander', 'racing.png'],
+            ['Ajax Amsterdam', 'AJA', 'Ajax', 'ajax.png'],
+            ['FK Bodö/Glimt', 'BOD', 'Bodö/Glimt', 'bodo.png'],
+            ['FK Kairat', 'KAI', 'Kairat', 'kairat.png'],
+            ['Olympique Marseille', 'OM', 'Marseille', 'marseille.png'],
+            ['Paphos FC', 'PAF', 'Paphos', 'paphos.png'],
+            ['Paris Saint-Germain', 'PSG', 'Paris', 'paris.png'],
+            ['Qarabag FK', 'QAR', 'Qarabag', 'qarabag.png'],
+            ['SL Benfica', 'BEN', 'Benfica', 'benfica.png'],
+            ['Slavia Prag', 'SLA', 'Slavia Prag', 'slavia.png'],
+            ['Sporting CP', 'SCP', 'Sporting', 'sporting.png'],
+            ['Tottenham Hotspur', 'TOT', 'Tottenham', 'tottenham.png'],
+            ['Union Saint-Gilloise', 'USG', 'St. Gilloise', 'unionsg.jpg'],
+            // Für 2026/27 bereits direkt qualifizierte UEFA-Teams, soweit sie
+            // noch nicht durch die OpenLigaDB-Listen 2025 abgedeckt sind.
+            ['Como 1907', 'COM', 'Como', 'como.svg'],
+            ['Feyenoord Rotterdam', 'FEY', 'Feyenoord', 'feyenoord.png'],
+            ['RC Lens', 'RCL', 'Lens', 'lens.png'],
+            ['Lille OSC', 'LIL', 'Lille', 'lille.png'],
+            ['Schachtar Donezk', 'SHK', 'Donezk', 'donezk.png'],
+        ];
+        foreach ($internationalTeams as [$webservice, $short, $medium, $logo]) {
+            $query = $db->getQuery(true)
+                ->insert($db->quoteName('#__buliergebnisse'))
+                ->columns($db->quoteName(['bezeichnung_webservice', 'bezeichnung_kurz', 'bezeichnung_mittel', 'dateiname_logo']))
+                ->values(implode(',', [$db->quote($webservice), $db->quote($short), $db->quote($medium), $db->quote($logo)]));
+            $db->setQuery($query)->execute();
         }
+
     }
 }

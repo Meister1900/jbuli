@@ -110,9 +110,10 @@ class mod_bulitabelleInstallerScript
             $db->setQuery($query)->execute();
         }
 
-        $cachefile = JPATH_BASE."/../modules/mod_bulitabelle/cache.txt";
-        if (is_file($cachefile)) {
-            @unlink($cachefile);
+        foreach (glob(JPATH_CACHE . '/mod_bulitabelle_*.cache*') as $cachefile) {
+            if (is_file($cachefile)) {
+                @unlink($cachefile);
+            }
         }
     }
 }

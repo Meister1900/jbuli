@@ -6,8 +6,8 @@
 	<copyright>(C) 2021 Markus Krupp</copyright>
 	<license>GNU/GPL</license>
 	<authorEmail>webmaster@krupphome.de</authorEmail>
-	<authorUrl>www.jbuli.de</authorUrl>
-	<version>2.1.5</version>
+	<authorUrl>https://www.jbuli.de/</authorUrl>
+	<version>2.1.8</version>
 	<description>Bundesliga Tabelle für Joomla</description>
 	<namespace path="src">Jbuli\Module\Bulitabelle</namespace>
   <scriptfile>install.php</scriptfile>

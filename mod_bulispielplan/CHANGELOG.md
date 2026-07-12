@@ -1,3 +1,13 @@
+ * 2.1.18 - Wechsel-Spinner stabil rechts neben dem Vereinsdropdown ausgerichtet
+ * 2.1.17 - Erstlade-Spinner beibehalten und Spinner beim Vereinswechsel entfernt
+ * 2.1.16 - Erstlade-Spinner entfernt und bestehende API-Caches bei Updates beibehalten
+ * 2.1.15 - Moderne templatefreundliche CSS-Ladeanimation statt GIF
+ * 2.1.14 - Wettbewerbsübergreifender Vereinsfilter über die stabile OpenLigaDB-Team-ID
+ * 2.1.13 - Jahreszahl in schmalen Modulpositionen zugunsten des Vereinsnamens ausgeblendet
+ * 2.1.12 - Ergebnisspalte stabilisiert und lange unbekannte Gegnernamen gekürzt
+ * 2.1.11 - Spieltagsnummer in schmalen Positionen sowie DFB-Pokal- und Champions-League-Partien wiederhergestellt
+ * 2.1.10 - No-Cache-AJAX-Antworten und moderne Torschützen-Tooltips
+ * 2.1.9 - Eigene Vereinslisten- und Spielplandateien je Modulinstanz
  * 2.1.8 - Vereinslisten-Cache und Request-Lock gegen leere Spielpläne bei schnellen Reloads
  * 2.1.7 - PHP-8-Produktionshärtung, API-Validierung und Entfernung ungenutzter Altbibliotheken
  * 2.1.6 - Jahreszahl abhängig von der tatsächlich verfügbaren Modulbreite

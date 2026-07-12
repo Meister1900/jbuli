@@ -1,6 +1,5 @@
 <?php
 use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
-use Joomla\CMS\Uri\Uri as JURI;
 /**
  * mod_bulitabelle.php - (c) Markus Krupp
  * Die Daten werden vom Webservice openligadb bereitgestellt.
@@ -17,8 +16,8 @@ use Joomla\CMS\Uri\Uri as JURI;
   $strHTMLOutput = '';
   try {
       $tabelle = new modBulitabelleHelper($module);
-      $strHTMLOutput = "\r\n<!-- Bundesliga-Tabelle 1.18 - (c) Markus Krupp - http://www.jbuli.de-->\r\n";
-      $strHTMLOutput .= '<div id="bulitabelle_' . $module->id . '"> <img id="bulitabelle_loading_' . $module->id . '" src="'.JURI::root().'modules/mod_bulitabelle/images/ajax-loader.gif"></div>';
+      $strHTMLOutput = "\r\n<!-- Bundesliga-Tabelle 2.1.8 - (c) Markus Krupp - https://www.jbuli.de/-->\r\n";
+      $strHTMLOutput .= '<div id="bulitabelle_' . $module->id . '"><span id="bulitabelle_loading_' . $module->id . '" class="jbuli-loader" role="status" aria-label="Wird geladen" style="display:block; margin:12px auto;"></span></div>';
   } catch (Throwable $e) {
       $strHTMLOutput = '<div class="alert alert-warning">Ein Fehler ist aufgetreten.</div>';
   }

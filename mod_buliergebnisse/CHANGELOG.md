@@ -1,3 +1,8 @@
+ * 2.1.10 - Race-sichere Spieltags-Caches mit dauerhaftem Fallback bei API-Ausfällen
+ * 2.1.9 - Moderne templatefreundliche CSS-Ladeanimation statt GIF
+ * 2.1.8 - No-Cache-AJAX-Antworten und moderne Torschützen-Tooltips
+ * 2.1.7 - Leere Lieblingsverein-Auswahl bei neuen Modulinstanzen behoben und API-Fallback ergänzt
+ * 2.1.6 - Dynamischer Lieblingsverein, aktuelle internationale Ligen und instanzbezogener Cache
  * 2.1.5 - Letzter Spieltag als automatische Vorgabe für abgeschlossene Saisons
  * 2.1.4 - PHP-8-Produktionshärtung für Cache, AJAX, API-Randfälle und Ausgabesicherheit
  * 2.1.3 - Drei Namensstufen und templateunabhängig begrenztes Spieltag-Dropdown

@@ -155,20 +155,5 @@ class mod_bulispielplanInstallerScript
             $db->setQuery($query)->execute();
         }
 
-        foreach (glob(JPATH_BASE."/../modules/mod_bulispielplan/cache_*.txt") as $cachefile) {
-            if (is_file($cachefile)) {
-                @unlink($cachefile);
-            }
-        }
-        foreach (glob(JPATH_CACHE . '/mod_bulispielplan_*.json') as $cachefile) {
-            if (is_file($cachefile)) {
-                @unlink($cachefile);
-            }
-        }
-        foreach (glob(JPATH_CACHE . '/mod_bulispielplan_*.lock') as $lockfile) {
-            if (is_file($lockfile)) {
-                @unlink($lockfile);
-            }
-        }
     }
 }

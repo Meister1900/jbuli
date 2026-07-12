@@ -6,8 +6,8 @@
 	<copyright>(C) 2022 Markus Krupp</copyright>
 	<license>GNU/GPL</license>
 	<authorEmail>webmaster@krupphome.de</authorEmail>
-	<authorUrl>www.jbuli.de</authorUrl>
-	<version>2.1.8</version>
+	<authorUrl>https://www.jbuli.de/</authorUrl>
+	<version>2.1.18</version>
 	<description>Bundesliga Spielplan für Joomla</description>
 	<namespace path="src">Jbuli\Module\Bulispielplan</namespace>
   <scriptfile>install.php</scriptfile>

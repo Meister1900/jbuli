@@ -1,3 +1,6 @@
+ * 2.1.8 - Moderne templatefreundliche CSS-Ladeanimation statt GIF
+ * 2.1.7 - No-Cache-Header für AJAX-Antworten
+ * 2.1.6 - Eigene Live-Cachedatei je Modulinstanz
  * 2.1.5 - Liga-/Saison-Teamfeld im Backend und leere Folgeplätze bei vollständiger Ranggleichheit
  * 2.1.4 - PHP-8-Produktionshärtung für Cache, AJAX und unvollständige API-Antworten
  * 2.1.3 - Automatische, inhaltsabhängige Spaltenauswahl per ResizeObserver ohne festen Breakpoint

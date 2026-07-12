@@ -1,4 +1,5 @@
 <?php
+
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\Registry\Registry as JRegistry;
@@ -20,8 +21,14 @@ class modBulispielplanHelper
         $itemId = $activeMenu ? (int) $activeMenu->id : 0;
 
         $style = '#bulispielplan_' . (int) $module->id . ' { width:100%; max-width:none; container-type:inline-size; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-loader { display:inline-block; width:22px; height:22px; box-sizing:border-box; border:3px solid currentColor; border-right-color:transparent; border-radius:50%; opacity:.72; vertical-align:middle; animation:jbuli-spin .72s linear infinite; }
+              @keyframes jbuli-spin { to { transform:rotate(360deg); } }
+              @media (prefers-reduced-motion:reduce) { #bulispielplan_' . (int) $module->id . ' .jbuli-loader { animation-duration:1.6s; } }
               #bulispielplan_' . (int) $module->id . ' table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
-              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select { display:flex; align-items:center; width:100%; min-height:38px; border:1px solid rgba(127,127,127,.55); border-radius:4px; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule { table-layout:fixed; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select-row { display:flex; align-items:center; gap:8px; width:100%; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select-row > .jbuli-loader { flex:0 0 22px; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select { display:flex; align-items:center; flex:1 1 auto; min-width:0; min-height:38px; border:1px solid rgba(127,127,127,.55); border-radius:4px; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-team-select > img { width:22px; height:22px; margin-left:8px; flex:0 0 22px; }
               #bulispielplan_' . (int) $module->id . ' select { width:100%; height:36px; max-width:100%; padding:5px 8px; border:0; background:transparent; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-team-select.jbuli-enhanced { position:relative; display:block; border:0; }
@@ -46,9 +53,15 @@ class modBulispielplanHelper
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { width:4rem; min-width:4rem; padding-right:12px; text-align:center; font-weight:700; white-space:nowrap; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule.jbuli-hide-year td:nth-child(2) { width:3.8rem; min-width:3.8rem; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule.jbuli-hide-year .jbuli-date-year { display:none; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-goal-tooltip { cursor:pointer; outline-offset:2px; border-bottom:1px dotted currentColor; }
+              #jbuli-goal-popover_' . (int) $module->id . ' { position:fixed; z-index:2147483647; display:none; min-width:190px; max-width:min(320px,calc(100vw - 16px)); padding:10px 12px; border:1px solid rgba(255,255,255,.16); border-radius:8px; background:#182126; color:#fff; box-shadow:0 8px 28px rgba(0,0,0,.32); font-size:.875rem; line-height:1.35; pointer-events:none; }
+              #jbuli-goal-popover_' . (int) $module->id . '.is-visible { display:block; }
+              #jbuli-goal-popover_' . (int) $module->id . ' .jbuli-tooltip-heading { margin:0 0 7px; color:#fff; font-weight:700; }
+              #jbuli-goal-popover_' . (int) $module->id . ' .jbuli-tooltip-row { display:grid; grid-template-columns:2.6rem 1fr; gap:8px; padding:3px 0; }
+              #jbuli-goal-popover_' . (int) $module->id . ' .jbuli-tooltip-score { color:#8ed1fc; font-weight:700; font-variant-numeric:tabular-nums; }
               @container (max-width:460px) {
                 #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td { padding-left:3px; padding-right:3px; }
-                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(1) { display:none; }
+                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(1) { width:1.8rem; min-width:1.8rem; font-size:.86rem; }
                 #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(5) { width:1.6rem; min-width:1.6rem; display:table-cell; }
                 #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { min-width:4rem; padding-right:10px; }
               }
@@ -57,6 +70,7 @@ class modBulispielplanHelper
 
         $document->addScriptDeclaration('
       jQuery(document).ready(function() {
+        init_goal_tooltip_' . $module->id . '();
         change_verein_' . $module->id . '();
         jQuery(document).on("change", "#verein_' . $module->id . '", change_verein_' . $module->id . ');
         var container = document.getElementById("bulispielplan_' . $module->id . '");
@@ -69,13 +83,42 @@ class modBulispielplanHelper
         }
       });
 
+      function init_goal_tooltip_' . $module->id . '() {
+        var root = jQuery("#bulispielplan_' . $module->id . '");
+        var popover = jQuery("#jbuli-goal-popover_' . $module->id . '");
+        if (!popover.length) {
+          popover = jQuery("<div id=\"jbuli-goal-popover_' . $module->id . '\" role=\"tooltip\"></div>").appendTo(document.body);
+        }
+        root.off(".jbuliGoalTooltip").on("mouseenter.jbuliGoalTooltip focusin.jbuliGoalTooltip", ".jbuli-goal-tooltip", function() {
+          var target = this;
+          var lines = String(target.getAttribute("data-tooltip") || "").split(/\\r?\\n/).filter(Boolean);
+          if (!lines.length) { return; }
+          popover.empty().append(jQuery("<div class=\"jbuli-tooltip-heading\"></div>").text("Torschützen"));
+          lines.forEach(function(line) {
+            var parts = line.match(/^(\\d+:\\d+)\\s+(.*)$/);
+            var row = jQuery("<div class=\"jbuli-tooltip-row\"></div>");
+            row.append(jQuery("<span class=\"jbuli-tooltip-score\"></span>").text(parts ? parts[1] : ""));
+            row.append(jQuery("<span></span>").text(parts ? parts[2] : line));
+            popover.append(row);
+          });
+          popover.addClass("is-visible");
+          var rect = target.getBoundingClientRect();
+          var left = Math.max(8, Math.min(rect.left + rect.width / 2 - popover.outerWidth() / 2, window.innerWidth - popover.outerWidth() - 8));
+          var top = rect.top - popover.outerHeight() - 9;
+          if (top < 8) { top = rect.bottom + 9; }
+          popover.css({left: left + "px", top: top + "px"});
+        }).on("mouseleave.jbuliGoalTooltip focusout.jbuliGoalTooltip", ".jbuli-goal-tooltip", function() {
+          popover.removeClass("is-visible");
+        });
+      }
+
       function fit_spielplan_date_' . $module->id . '() {
         var container = document.getElementById("bulispielplan_' . $module->id . '");
         var scroll = container ? container.querySelector(".jbuli-schedule-scroll") : null;
         var table = scroll ? scroll.querySelector(".jbuli-schedule") : null;
         if (!scroll || !table) { return; }
         table.classList.remove("jbuli-hide-year");
-        if (table.scrollWidth > scroll.clientWidth + 1) {
+        if (scroll.clientWidth < 460 || table.scrollWidth > scroll.clientWidth + 1) {
           table.classList.add("jbuli-hide-year");
         }
       }
@@ -209,8 +252,8 @@ class modBulispielplanHelper
             return $content !== false && $status >= 200 && $status < 300 ? $content : false;
         } elseif (ini_get('allow_url_fopen')) {
             $context = stream_context_create([
-        'http' => [ 'timeout' => $timeout ]
-      ]);
+                'http' => ['timeout' => $timeout]
+            ]);
 
             return file_get_contents($url, 0, $context);
         } else {
@@ -221,16 +264,22 @@ class modBulispielplanHelper
     private static function decodeApiResponse(string $json)
     {
         $value = json_decode($json);
-        if (json_last_error() !== JSON_ERROR_NONE) { return null; }
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
         return self::normaliseApiKeys($value);
     }
 
     private static function normaliseApiKeys($value)
     {
-        if (is_array($value)) { return array_map([self::class, 'normaliseApiKeys'], $value); }
+        if (is_array($value)) {
+            return array_map([self::class, 'normaliseApiKeys'], $value);
+        }
         if (is_object($value)) {
             $normalised = new stdClass();
-            foreach (get_object_vars($value) as $key => $item) { $normalised->{ucfirst($key)} = self::normaliseApiKeys($item); }
+            foreach (get_object_vars($value) as $key => $item) {
+                $normalised->{ucfirst($key)} = self::normaliseApiKeys($item);
+            }
             return $normalised;
         }
         return $value;
@@ -241,6 +290,7 @@ class modBulispielplanHelper
      */
     public static function getSpielplanAjax()
     {
+        self::sendAjaxNoCacheHeaders();
         $jinput = JFactory::getApplication()->input;
         $db = JFactory::getContainer()->get(DatabaseInterface::class);
         $moduleId = $jinput->getInt('module_id');
@@ -258,8 +308,8 @@ class modBulispielplanHelper
         $jparams = new JRegistry();
         $jparams->loadString((string) $module->params);
         $context = stream_context_create([
-      'http' => [ 'timeout' => $jparams->get('timeout') ]
-    ]);
+            'http' => ['timeout' => $jparams->get('timeout')]
+        ]);
 
         // Liga ermitteln
         $teamAliases = [
@@ -278,8 +328,8 @@ class modBulispielplanHelper
 
         // Für historische Spielpläne alle bekannten Vereine als Logo-Mapping laden.
         // Die Ligazugehörigkeit in der Stammtabelle bildet nur die aktuelle Saison ab.
-        $query = 'SELECT '.$db->quoteName('bezeichnung_webservice').', '.$db->quoteName('bezeichnung_kurz').', '.$db->quoteName('bezeichnung_mittel').', '.$db->quoteName('dateiname_logo')
-            .' FROM '.$db->quoteName('#__bulispielplan');
+        $query = 'SELECT ' . $db->quoteName('bezeichnung_webservice') . ', ' . $db->quoteName('bezeichnung_kurz') . ', ' . $db->quoteName('bezeichnung_mittel') . ', ' . $db->quoteName('dateiname_logo')
+            . ' FROM ' . $db->quoteName('#__bulispielplan');
         $db->setQuery($query);
         $allTeams = $db->loadAssocList('bezeichnung_webservice');
         foreach ($allTeams as &$teamData) {
@@ -291,8 +341,8 @@ class modBulispielplanHelper
         // Logo-Bestand bevorzugen. Der Spielplan bleibt ohne dieses Modul lauffähig.
         $resultTable = $db->replacePrefix('#__buliergebnisse');
         if (in_array($resultTable, $db->getTableList(), true)) {
-            $query = 'SELECT '.$db->quoteName('bezeichnung_webservice').', '.$db->quoteName('bezeichnung_kurz').', '.$db->quoteName('bezeichnung_mittel').', '.$db->quoteName('dateiname_logo')
-                .' FROM '.$db->quoteName('#__buliergebnisse');
+            $query = 'SELECT ' . $db->quoteName('bezeichnung_webservice') . ', ' . $db->quoteName('bezeichnung_kurz') . ', ' . $db->quoteName('bezeichnung_mittel') . ', ' . $db->quoteName('dateiname_logo')
+                . ' FROM ' . $db->quoteName('#__buliergebnisse');
             $resultTeams = $db->setQuery($query)->loadAssocList('bezeichnung_webservice');
             foreach ($resultTeams as $name => $teamData) {
                 $teamData['logo_module'] = 'mod_buliergebnisse';
@@ -304,7 +354,7 @@ class modBulispielplanHelper
         // gegen parallele Reloads sowie kurzfristige API-Ausfälle absichern.
         $season = (int) $jparams->get('season');
         $cacheTtl = max(60, (int) $jparams->get('refresh', 60) * 60);
-        $availableCachefile = JPATH_CACHE . '/mod_bulispielplan_teams_' . $liga . '_' . $season . '.json';
+        $availableCachefile = JPATH_CACHE . '/mod_bulispielplan_' . (int) $module->id . '_teams_' . $liga . '_' . $season . '.json';
         $availableTeams = self::fetchCachedApiArray(
             'https://api.openligadb.de/getavailableteams/' . $liga . '/' . $season,
             $availableCachefile,
@@ -325,6 +375,7 @@ class modBulispielplanHelper
                 'logo_module' => '',
             ];
             $teams[$name]['team_icon_url'] = (string) ($apiTeam->TeamIconUrl ?? '');
+            $teams[$name]['team_id'] = (int) ($apiTeam->TeamId ?? 0);
         }
         $requestedTeam = trim($jinput->getString('verein', ''));
         $requestedTeam = $teamAliases[$requestedTeam] ?? $requestedTeam;
@@ -337,6 +388,7 @@ class modBulispielplanHelper
                 'dateiname_logo' => '',
                 'logo_module' => '',
                 'team_icon_url' => '',
+                'team_id' => 0,
             ];
         }
         uasort($teams, static fn(array $a, array $b): int => strcasecmp($a['bezeichnung_mittel'], $b['bezeichnung_mittel']));
@@ -345,7 +397,7 @@ class modBulispielplanHelper
         $table = "\r\n<table class='jbuli-team-selector'>\r\n";
 
         // Verein Dropdown
-        $table .= "<tr><td><div class='jbuli-team-select'><img id='verein_logo_" . $module->id . "' alt='' style='display:none;'><select id='verein_" . $module->id . "'>";
+        $table .= "<tr><td><div class='jbuli-team-select-row'><div class='jbuli-team-select'><img id='verein_logo_" . $module->id . "' alt='' style='display:none;'><select id='verein_" . $module->id . "'>";
         $verein = '';
         $useLongNames = $jparams->get('longnames') == '1';
 
@@ -373,16 +425,20 @@ class modBulispielplanHelper
             $firstTeam = reset($teams);
             $verein = $firstTeam['bezeichnung_webservice'];
         }
+        $vereinTeamId = (int) ($teams[$verein]['team_id'] ?? 0);
 
-        $table .= "</select><img id='bulispielplan_loading_" . $module->id . "' src='".JURI::root()."modules/mod_bulispielplan/images/ajax-loader.gif' style='display:none; margin-right:8px;'></div></td></tr></table>";
+        $table .= "</select></div><span id='bulispielplan_loading_" . $module->id . "' class='jbuli-loader' role='status' aria-label='Wird geladen' style='display:none;'></span></div></td></tr></table>";
         $table .= "<div class='jbuli-schedule-scroll' style='height:" . (int) $jparams->get('hoehe', 400) . "px; width:100%; overflow-y:auto; overflow-x:hidden; margin-top:1rem;'>";
         $table .= "<table class='jbuli-schedule'>\r\n";
 
-        $ligen = [$liga, 'dfb' . $season];
+        // OpenLigaDB verwendet seit den aktuellen Wettbewerben die stabilen
+        // Kürzel "dfb" und "ucl"; die Saison steht ausschließlich im zweiten
+        // URL-Segment. Alle drei Wettbewerbe werden in einen Spielplan gemischt.
+        $ligen = [$liga, 'dfb', 'ucl'];
         $partien = [];
 
         foreach ($ligen as $competitionIndex => $competition) {
-            $cachefile = JPATH_CACHE . '/mod_bulispielplan_' . preg_replace('/[^a-z0-9_-]/i', '', $competition) . '_' . $season . '.json';
+            $cachefile = JPATH_CACHE . '/mod_bulispielplan_' . (int) $module->id . '_' . preg_replace('/[^a-z0-9_-]/i', '', $competition) . '_' . $season . '.json';
             $paarungen = self::fetchCachedApiArray(
                 'https://api.openligadb.de/getmatchdata/' . $competition . '/' . $season,
                 $cachefile,
@@ -415,7 +471,8 @@ class modBulispielplanHelper
 
         $anzahl_partien = 0;
         foreach ($partien as $partie) {
-            if ($partie->Team1->TeamName == $verein || $partie->Team2->TeamName == $verein) {
+            if (self::isSelectedTeam($partie->Team1, $verein, $vereinTeamId)
+                || self::isSelectedTeam($partie->Team2, $verein, $vereinTeamId)) {
                 $anzahl_partien++;
             }
         }
@@ -426,7 +483,8 @@ class modBulispielplanHelper
         $id = '';
         $hat_ergebnisse = false;
         foreach ($partien as $partie) {
-            if ($partie->Team1->TeamName == $verein || $partie->Team2->TeamName == $verein) {
+            if (self::isSelectedTeam($partie->Team1, $verein, $vereinTeamId)
+                || self::isSelectedTeam($partie->Team2, $verein, $vereinTeamId)) {
                 $c++;
                 $tootip_text = '';
                 $goals = '';
@@ -454,10 +512,10 @@ class modBulispielplanHelper
                     // Endergebnis ermitteln
                     foreach ($alle_ergebnisse as $ergebnis) {
                         if (($ergebnis->ResultName ?? '') == 'Endergebnis' && isset($ergebnis->PointsTeam1, $ergebnis->PointsTeam2)) {
-                            if ($partie->Team1->TeamName == $verein) {
-                                $tootip_text .= $ergebnis->PointsTeam1.":".$ergebnis->PointsTeam2;
+                            if (self::isSelectedTeam($partie->Team1, $verein, $vereinTeamId)) {
+                                $tootip_text .= $ergebnis->PointsTeam1 . ":" . $ergebnis->PointsTeam2;
                             } else {
-                                $tootip_text .= $ergebnis->PointsTeam2.":".$ergebnis->PointsTeam1;
+                                $tootip_text .= $ergebnis->PointsTeam2 . ":" . $ergebnis->PointsTeam1;
                             }
 
                             break;
@@ -469,13 +527,13 @@ class modBulispielplanHelper
                             $scoreTeam1 = (int) ($goal->ScoreTeam1 ?? 0);
                             $scoreTeam2 = (int) ($goal->ScoreTeam2 ?? 0);
                             if (!empty($goal->MatchMinute)) {
-                                if ($partie->Team1->TeamName == $verein) {
+                                if (self::isSelectedTeam($partie->Team1, $verein, $vereinTeamId)) {
                                     $goals .= '<b>' . $scoreTeam1 . ':' . $scoreTeam2 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . ' (' . $goal->MatchMinute . '.)<br>';
                                 } else {
                                     $goals .= '<b>' . $scoreTeam2 . ':' . $scoreTeam1 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . ' (' . $goal->MatchMinute . '.)<br>';
                                 }
                             } else {
-                                if ($partie->Team1->TeamName == $verein) {
+                                if (self::isSelectedTeam($partie->Team1, $verein, $vereinTeamId)) {
                                     $goals .= '<b>' . $scoreTeam1 . ':' . $scoreTeam2 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . '<br>';
                                 } else {
                                     $goals .= '<b>' . $scoreTeam2 . ':' . $scoreTeam1 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . '<br>';
@@ -494,8 +552,9 @@ class modBulispielplanHelper
                 $tootip_text .= "</nobr>";
 
                 if ($goals <> '') {
-                    $goalTitle = htmlspecialchars(trim(strip_tags(str_replace('<br>', "\n", $goals))), ENT_QUOTES, 'UTF-8');
-                    $ergebnisse .= '<span title="' . $goalTitle . '">' . $tootip_text . '</span>';
+                    $goalText = trim(html_entity_decode(strip_tags(str_replace('<br>', "\n", $goals)), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                    $goalAttribute = htmlspecialchars($goalText, ENT_QUOTES, 'UTF-8');
+                    $ergebnisse .= '<span class="jbuli-goal-tooltip" tabindex="0" data-tooltip="' . $goalAttribute . '" aria-label="Torschützen anzeigen">' . $tootip_text . '</span>';
                 } else {
                     $ergebnisse .= $tootip_text;
                 }
@@ -505,7 +564,8 @@ class modBulispielplanHelper
 
             $tage = ["So.", "Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa."];
 
-            if ($partie->Team1->TeamName == $verein || $partie->Team2->TeamName == $verein) {
+            if (self::isSelectedTeam($partie->Team1, $verein, $vereinTeamId)
+                || self::isSelectedTeam($partie->Team2, $verein, $vereinTeamId)) {
                 if ($partie->wettbewerb == $ligen[0]) {
                     $anzeigename = 'Bundesliga';
                     $i++;
@@ -513,33 +573,39 @@ class modBulispielplanHelper
                 } elseif ($partie->wettbewerb == $ligen[1]) {
                     $kurz = 'PK';
                     $anzeigename = 'DFB Pokal';
-                    $bildSrc = JURI::root().'modules/mod_bulispielplan/images/pokal.png';
+                    $bildSrc = JURI::root() . 'modules/mod_bulispielplan/images/pokal.png';
                 } elseif ($partie->wettbewerb == $ligen[2]) {
                     $kurz = 'CL';
                     $anzeigename = 'Champions League';
-                    $bildSrc = JURI::root().'modules/mod_bulispielplan/images/cl.png';
+                    $bildSrc = JURI::root() . 'modules/mod_bulispielplan/images/cl.png';
                 }
 
-                if ($partie->Team1->TeamName == $verein) {
+                if (self::isSelectedTeam($partie->Team1, $verein, $vereinTeamId)) {
                     $wo = 'H';
                     $opponent = $partie->Team2;
-                    $anzeige = $opponent->TeamName;
+                    $teamData = $allTeams[$opponent->TeamName] ?? null;
+                    $mediumName = trim((string) ($teamData['bezeichnung_mittel'] ?? ''));
+                    $apiShortName = trim((string) ($opponent->ShortName ?? ''));
+                    $anzeige = $useLongNames
+                        ? $opponent->TeamName
+                        : ($mediumName !== '' ? $mediumName : ($apiShortName !== '' ? $apiShortName : self::shortenTeamName($opponent->TeamName)));
                     if ($partie->wettbewerb == $ligen[0]) {
-                        $teamData = $allTeams[$opponent->TeamName] ?? null;
-                        $anzeige = $useLongNames ? $opponent->TeamName : ($teamData['bezeichnung_mittel'] ?? $opponent->TeamName);
                         $bildSrc = $teamData
-                            ? JURI::root().'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
+                            ? JURI::root() . 'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
                             : (string) ($opponent->TeamIconUrl ?? '');
                     }
                 } else {
                     $wo = 'A';
                     $opponent = $partie->Team1;
-                    $anzeige = $opponent->TeamName;
+                    $teamData = $allTeams[$opponent->TeamName] ?? null;
+                    $mediumName = trim((string) ($teamData['bezeichnung_mittel'] ?? ''));
+                    $apiShortName = trim((string) ($opponent->ShortName ?? ''));
+                    $anzeige = $useLongNames
+                        ? $opponent->TeamName
+                        : ($mediumName !== '' ? $mediumName : ($apiShortName !== '' ? $apiShortName : self::shortenTeamName($opponent->TeamName)));
                     if ($partie->wettbewerb == $ligen[0]) {
-                        $teamData = $allTeams[$opponent->TeamName] ?? null;
-                        $anzeige = $useLongNames ? $opponent->TeamName : ($teamData['bezeichnung_mittel'] ?? $opponent->TeamName);
                         $bildSrc = $teamData
-                            ? JURI::root().'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
+                            ? JURI::root() . 'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
                             : (string) ($opponent->TeamIconUrl ?? '');
                     }
                 }
@@ -560,7 +626,7 @@ class modBulispielplanHelper
                 $table .= '<tr id="' . $module->id . '_' . $id . '"><td style="text-align:right; padding-right: 5px;">' . $kurz . '</td>
         <td title="' . htmlspecialchars($dateTitle, ENT_QUOTES, 'UTF-8') . '">' . date('d.m.', strtotime($partie->MatchDateTime)) . '<span class="jbuli-date-year">' . date('Y', strtotime($partie->MatchDateTime)) . '</span></td>
         <td><img style="width:20px; height:20px; object-fit:contain;" title="' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '" alt="" src="' . htmlspecialchars($bildSrc, ENT_QUOTES, 'UTF-8') . '"></td>
-        <td style="width:100%;"><div title="' . htmlspecialchars($tooltip, ENT_QUOTES, 'UTF-8') . '" style="cursor:default; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '</div></td>
+        <td><div title="' . htmlspecialchars($tooltip, ENT_QUOTES, 'UTF-8') . '" style="cursor:default; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '</div></td>
         <td>' . $wo . '</td>' . $ergebnisse . '</tr>';
             }
         }
@@ -636,5 +702,53 @@ class modBulispielplanHelper
                 @unlink($temporaryFile);
             }
         }
+    }
+
+    private static function sendAjaxNoCacheHeaders(): void
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('CDN-Cache-Control: no-store');
+        header('Cloudflare-CDN-Cache-Control: no-store');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        header('Content-Type: application/json; charset=utf-8');
+    }
+
+    private static function shortenTeamName(string $name): string
+    {
+        $name = trim($name);
+        if (strlen($name) <= 18) {
+            return $name;
+        }
+
+        $withoutPrefix = preg_replace(
+            '/^(?:1\.\s*)?(?:FC|SV|SC|TSV|VfB|VfL|SpVgg|FSV|BSG|SG)\s+/iu',
+            '',
+            $name
+        );
+        if (is_string($withoutPrefix) && strlen($withoutPrefix) <= 18) {
+            return $withoutPrefix;
+        }
+
+        $parts = preg_split('/\s+/u', $name, -1, PREG_SPLIT_NO_EMPTY);
+        return $parts ? (string) end($parts) : $name;
+    }
+
+    private static function isSelectedTeam($team, string $selectedName, int $selectedTeamId): bool
+    {
+        if (!is_object($team)) {
+            return false;
+        }
+
+        $teamId = (int) ($team->TeamId ?? 0);
+        if ($selectedTeamId > 0 && $teamId > 0) {
+            return $teamId === $selectedTeamId;
+        }
+
+        return (string) ($team->TeamName ?? '') === $selectedName;
     }
 }

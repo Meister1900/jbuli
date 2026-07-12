@@ -6,34 +6,36 @@
 	<copyright>(C) 2021 Markus Krupp</copyright>
 	<license>GNU/GPL</license>
 	<authorEmail>webmaster@krupphome.de</authorEmail>
-	<authorUrl>www.jbuli.de</authorUrl>
-	<version>2.1.5</version>
+	<authorUrl>https://www.jbuli.de/</authorUrl>
+	<version>2.1.10</version>
 	<description>Bundesliga Ergebnisse für Joomla</description>
+	<namespace path="src">Jbuli\Module\Buliergebnisse</namespace>
   <scriptfile>install.php</scriptfile>
 	<files>
 		<filename module="mod_buliergebnisse">mod_buliergebnisse.php</filename>
 		<folder>images</folder>
 		<filename>index.html</filename>
 		<filename>helper.php</filename>
+		<folder>src</folder>
 		<filename>tmpl/default.php</filename>
 	</files>
 	<config>
 		<fields name="params">
-			<fieldset name="basic">
-				<field name="league" type="list" default="" label="Liga" description="Liga">
+			<fieldset name="basic" addfieldprefix="Jbuli\Module\Buliergebnisse\Site\Field">
+				<field name="league" type="list" default="bl1" label="Liga" description="Liga">
 					<option value="bl1">1. Bundesliga</option>
 					<option value="bl2">2. Bundesliga</option>
-					<option value="pd">Primera Division</option>
-					<option value="pl">Premier League</option>
+					<option value="la1">LaLiga</option>
+					<option value="epl">Premier League</option>
 					<option value="sa">Serie A</option>
-					<option value="cl1617">ChampionsLeague</option>						
+					<option value="ucl">Champions League</option>
 				</field>
 				<field name="season" type="number" default="2026" label="Saison" description="Für die Saison 2026/2027 lautet der Wert '2026'" />
 				<field name="matchday" type="number" default="0" label="Spieltag" description="Der standardmäßig anzuzeigende Spieltag. 0 zeigt automatisch den aktuellen Spieltag an, -1 den Vorherigen" />
 				<field name="timeout" type="number" default="3" label="Timeout" description="Sekunden, wie lange auf eine Antwort vom Webservice gewartet werden soll. Bei einem Timeout werden die Daten aus dem Cache geladen." />
 				<field name="timeout_error" type="textarea" cols="40" rows="3" default="Für diesen Spieltag können derzeit keine Daten vom Webservice abgerufen werden :-(" label="Fehlermeldung Timeout" description="Fehlermeldung die angezeigt wird, wenn ein Timeout auftritt und keine Daten im Cache sind." />
 				<field name="nameformat" type="list" default="medium" label="Vereinsnamen" description="Darstellung der Vereinsnamen; Kurz verwendet Kürzel und die kompakte Terminansicht"><option value="long">Lang (offizieller Name)</option><option value="medium">Mittel (z. B. Gladbach)</option><option value="short">Kurz (z. B. BMG)</option></field>
-				<field name="meinVerein" type="list" default="" label="Verein hervorheben" description="Verein auswählen, der hervorgehoben werden soll">
+				<field name="meinVerein" type="teams" default="" label="Lieblingsverein hervorheben" description="Verein der gewählten Liga und Saison; nach Änderung von Liga oder Saison einmal speichern">
 					<option value="">Keinen</option>
 					<option value="1. FC Heidenheim 1846">1. FC Heidenheim 1846</option>
 					<option value="1. FC Köln">1. FC Köln</option>

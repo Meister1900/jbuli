@@ -1,6 +1,5 @@
 <?php
 use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
-use Joomla\CMS\Uri\Uri as JURI;
 /**
  * mod_buliergebnisse.php - (c) Markus Krupp
  * Die Daten werden vom Webservice openligadb.de bereitgestellt
@@ -17,8 +16,8 @@ use Joomla\CMS\Uri\Uri as JURI;
     $strHTMLOutput = '';
     try {
         $ergebnisse = new modBuliergebnisseHelper($module);
-        $strHTMLOutput = "\r\n<!-- Bundesliga-Ergebnisse 1.22 - (c) Markus Krupp - http://www.jbuli.de-->\r\n";
-        $strHTMLOutput .= "<div id='spielplan_" . $module->id . "'> <img id='buliergebnisse_loading_" . $module->id . "' src='".JURI::root()."modules/mod_buliergebnisse/images/ajax-loader.gif'></div>\r\n";
+        $strHTMLOutput = "\r\n<!-- Bundesliga-Ergebnisse 2.1.10 - (c) Markus Krupp - https://www.jbuli.de/-->\r\n";
+        $strHTMLOutput .= "<div id='spielplan_" . $module->id . "'><span id='buliergebnisse_loading_" . $module->id . "' class='jbuli-loader' role='status' aria-label='Wird geladen' style='display:block; margin:12px auto;'></span></div>\r\n";
     } catch (Throwable $e) {
         $strHTMLOutput = '<div class="alert alert-warning">'
             . htmlspecialchars((string) $params->get('timeout_error', 'Die Ergebnisse konnten nicht geladen werden.'), ENT_QUOTES, 'UTF-8')
