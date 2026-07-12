@@ -1,6 +1,10 @@
 .php_cs.cache
 .php_cs.dist
 *.lnk
+/AGENTS.md
+/mod_buliergebnisse/README.md
+/mod_bulispielplan/README.md
+/mod_bulitabelle/README.md
 /mod_buliergebnisse.zip
 /mod_bulispielplan.zip
 /mod_bulitabelle.zip

@@ -1,3 +1,4 @@
+ * 2.1.20 - Automatisches Scrollen der gesamten Seite nach AJAX-Ladevorgängen entfernt
  * 2.1.19 - Update-Metadaten vollständig auf GitHub Raw umgestellt
  * 2.1.18 - Wechsel-Spinner stabil rechts neben dem Vereinsdropdown ausgerichtet
  * 2.1.17 - Erstlade-Spinner beibehalten und Spinner beim Vereinswechsel entfernt

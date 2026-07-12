@@ -146,8 +146,6 @@ class modBulispielplanHelper
                 jQuery("#bulispielplan_' . $module->id . '").html(data.data);
                 enhance_verein_dropdown_' . $module->id . '();
                 fit_spielplan_date_' . $module->id . '();
-                var current = document.getElementById("' . $module->id . '_current");
-                if (current) { current.scrollIntoView({block: "center"}); }
               }
             }
         ).fail(function(xhr) {
@@ -166,8 +164,6 @@ class modBulispielplanHelper
             jQuery("#bulispielplan_' . $module->id . '").html(data.data);
             enhance_verein_dropdown_' . $module->id . '();
             fit_spielplan_date_' . $module->id . '();
-            var current = document.getElementById("' . $module->id . '_current");
-            if (current) { current.scrollIntoView({block: "center"}); }
           }
         });
       };
