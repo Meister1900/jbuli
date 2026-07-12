@@ -16,7 +16,7 @@ use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
   $strHTMLOutput = '';
   try {
       $tabelle = new modBulitabelleHelper($module);
-      $strHTMLOutput = "\r\n<!-- Bundesliga-Tabelle 2.1.9 - (c) Markus Krupp - https://www.jbuli.de/-->\r\n";
+      $strHTMLOutput = "\r\n<!-- Bundesliga-Tabelle 2.1.9 - (c) Markus Krupp - https://www.krupphome.de/-->\r\n";
       $strHTMLOutput .= '<div id="bulitabelle_' . $module->id . '"><span id="bulitabelle_loading_' . $module->id . '" class="jbuli-loader" role="status" aria-label="Wird geladen" style="display:block; margin:12px auto;"></span></div>';
   } catch (Throwable $e) {
       $strHTMLOutput = '<div class="alert alert-warning">Ein Fehler ist aufgetreten.</div>';

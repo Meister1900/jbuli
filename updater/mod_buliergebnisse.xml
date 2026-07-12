@@ -6,16 +6,16 @@
     <type>module</type>
 	<client>0</client>
     <version>2.1.12</version>
-    <infourl title="Bundesliga Module für Joomla!">https://www.jbuli.de/</infourl>
+    <infourl title="Bundesliga Module für Joomla!">https://www.krupphome.de/</infourl>
     <downloads>
         <downloadurl type="full" format="zip">https://raw.githubusercontent.com/Meister1900/jbuli/master/mod_buliergebnisse/mod_buliergebnisse.zip</downloadurl>
     </downloads>
-    <sha256>bb3e497612d93b5e178b5584580c7563b9d8d725e7b9103eead28e40d331226a</sha256>
+    <sha256>7abe0276435a62b8624cacce3ebd2820183110e91fca5301cd113d8b689feeea</sha256>
     <tags>
         <tag>stable</tag>
     </tags>
     <maintainer>Markus Krupp</maintainer>
-    <maintainerurl>https://www.jbuli.de/</maintainerurl>
+    <maintainerurl>https://www.krupphome.de/</maintainerurl>
     <targetplatform name="joomla" version="6.*"/>
  </update>
 </updates>
