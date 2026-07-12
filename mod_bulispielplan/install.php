@@ -135,7 +135,8 @@ class mod_bulispielplanInstallerScript
                (41, 'bl2', 'Energie Cottbus', 'FCE', 'Cottbus', 'cottbus.svg'),
                (42, 'bl2', 'VfL Osnabrück', 'OSN', 'Osnabrück', 'osnabrueck.png'),
                (43, 'bl2', 'DSC Arminia Bielefeld', 'DSC', 'Bielefeld', 'bielefeld.png'),
-               (44, 'bl1', 'Bayer 04 Leverkusen', 'B04', 'Leverkusen', 'leverkusen.png');
+               (44, 'bl1', 'Bayer 04 Leverkusen', 'B04', 'Leverkusen', 'leverkusen.png'),
+               (45, 'bl2', 'Preußen Münster', 'SCP', 'Münster', 'muenster.svg');
 			   ";
 
         $db->setQuery($query);

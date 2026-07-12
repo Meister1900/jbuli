@@ -1,3 +1,4 @@
+ * 2.1.0 - Diff.-Spalte, Münster-Logo, Langnamen und schmale Sidebar-Ansicht
  * 2.0.3 - Sporttabellen-Layout mit mehr Abstand und hervorgehobenen Punkten
  * 2.0.2 - G/U/V auch in schmalen Modulpositionen sichtbar
  * 2.0.1 - Teamlogos, G/U/V, separate Torwerte und responsive Spalten

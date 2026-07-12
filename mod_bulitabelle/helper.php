@@ -42,6 +42,11 @@ class modBulitabelleHelper
             . '#bulitabelle_' . (int) $module->id . ' th,'
             . '#bulitabelle_' . (int) $module->id . ' td { font-size:0.88rem; padding-left:4px; padding-right:4px; }'
             . '}'
+            . '@container (max-width:500px) {'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-form,'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-compact { display:none !important; }'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-team { padding-right:6px; }'
+            . '}'
         );
 
         $document->addScriptDeclaration('
@@ -74,7 +79,7 @@ class modBulitabelleHelper
 			data = jQuery.parseJSON(xhr.responseText.substring(xhr.responseText.indexOf("success")-2));
 		  }
 		  catch (e) {
-			alert("Fehlerhafter JSON Response - Doku pruefen!");
+			data = {success: false, message: "Keine Verbindung zum Ergebnisserver. Bitte später erneut versuchen."};
 		  };
           jQuery("#bulitabelle_loading_' . $module->id . '").hide();
           if (data.success == false) {
@@ -259,10 +264,9 @@ class modBulitabelleHelper
                     if ($name == 'SV Sandhausen' && $jparams->get('season') == '2015') {
                         $team['punkte'] -= 3;
                     }
-                    $sql = $db->getQuery(true)
-                        ->insert($db->quoteName('#__bulitabelle'))
-                        ->columns($db->quoteName(['team', 'spiele', 'gewonnen', 'unentschieden', 'verloren', 'tore', 'gegentore', 'punkte', 'modul_id']))
-                        ->values(implode(',', [$db->quote($name), (int) $team['spiele'], (int) $team['gewonnen'], (int) $team['unentschieden'], (int) $team['verloren'], (int) $team['tore'], (int) $team['gegentore'], (int) $team['punkte'], (int) $module->id]));
+                    $sql = 'REPLACE INTO ' . $db->quoteName('#__bulitabelle')
+                        . ' (' . implode(',', $db->quoteName(['team', 'spiele', 'gewonnen', 'unentschieden', 'verloren', 'tore', 'gegentore', 'punkte', 'modul_id'])) . ')'
+                        . ' VALUES (' . implode(',', [$db->quote($name), (int) $team['spiele'], (int) $team['gewonnen'], (int) $team['unentschieden'], (int) $team['verloren'], (int) $team['tore'], (int) $team['gegentore'], (int) $team['punkte'], (int) $module->id]) . ')';
                     $db->setQuery($sql)->execute();
                 }
 
@@ -395,6 +399,7 @@ class modBulitabelleHelper
       'Würzburger Kickers' => 'Würzburg',
       'FC Hansa Rostock' => 'Rostock',
       'SV 07 Elversberg' => 'Elversberg',
+      'Preußen Münster' => 'Münster',
     ];
 
         if (count($tabelle) == 0) {
@@ -406,12 +411,12 @@ class modBulitabelleHelper
         $htmloutput = '<table class="jbuli-standings"><thead><tr>'
             . '<th style="'.$style.'">Pl.</th><th aria-label="Logo"></th><th style="text-align:left;">Team</th>'
             . '<th style="'.$style.'">Sp.</th>'
-            . '<th style="'.$style.'">G</th>'
-            . '<th style="'.$style.'">U</th>'
-            . '<th style="'.$style.'">V</th>'
+            . '<th class="jbuli-form" style="'.$style.'">G</th>'
+            . '<th class="jbuli-form" style="'.$style.'">U</th>'
+            . '<th class="jbuli-form" style="'.$style.'">V</th>'
             . '<th class="jbuli-optional" style="'.$style.'">T</th>'
             . '<th class="jbuli-optional" style="'.$style.'">GT</th>'
-            . '<th class="jbuli-optional" style="'.$style.'">+/-</th>'
+            . '<th class="jbuli-optional" style="'.$style.'">Diff.</th>'
             . '<th class="jbuli-compact" style="'.$style.'">Tore</th>'
             . '<th style="'.$style.'">Pkt</th></tr></thead><tbody>';
 
@@ -430,26 +435,31 @@ class modBulitabelleHelper
                 $trstyle = '';
             }
 
-            if ($jparams->get('league') == 'bl1' && ($platz == 4 || $platz == 5 || $platz ==  6 || $platz == 15 || $platz == 16) ||
+            if ($jparams->get('league') == 'bl1' && ($platz == 1 || $platz == 4 || $platz == 5 || $platz ==  6 || $platz == 15 || $platz == 16) ||
         $jparams->get('league') == 'bl2' && ($platz == 2 || $platz == 3 || $platz ==  15 || $platz == 16)) {
                 $tdstyle .= ' border-bottom: 1px solid #A6A6A6;';
             }
 
-            $displayName = $ersetzen[$row['team']] ?? $row['team'];
-            $logo = strtolower(str_replace(['ü', 'ä', 'ö', ' '], ['ue', 'ae', 'oe', ''], $displayName)) . '.png';
-            if ($displayName === 'Cottbus') {
+            $displayName = $jparams->get('longnames') == '1'
+                ? $row['team']
+                : ($ersetzen[$row['team']] ?? $row['team']);
+            $logoName = $ersetzen[$row['team']] ?? $row['team'];
+            $logo = strtolower(str_replace(['ü', 'ä', 'ö', ' '], ['ue', 'ae', 'oe', ''], $logoName)) . '.png';
+            if ($logoName === 'Cottbus') {
                 $logo = 'cottbus.svg';
-            } elseif ($displayName === 'St. Pauli') {
+            } elseif ($logoName === 'St. Pauli') {
                 $logo = 'st.pauli.png';
+            } elseif ($logoName === 'Münster') {
+                $logo = 'muenster.svg';
             }
             $htmloutput .= '<tr style="' . $trstyle . '">'
                 . '<td style="'.$tdstyle.'"><b>' .$platz . '&nbsp;</b></td>'
                 . '<td class="jbuli-logo"><img loading="lazy" title="'.htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8').'" alt="" src="'.JURI::root().'modules/mod_bulitabelle/images/' . rawurlencode($logo) . '"></td>'
                 . '<td class="jbuli-team" style="'.$tdstyle.'">' . htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') . '</td>'
                 . '<td style="'.$tdstyle.'">' . (int) $row['spiele'] . '</td>'
-                . '<td style="'.$tdstyle.'">' . (int) $row['gewonnen'] . '</td>'
-                . '<td style="'.$tdstyle.'">' . (int) $row['unentschieden'] . '</td>'
-                . '<td style="'.$tdstyle.'">' . (int) $row['verloren'] . '</td>'
+                . '<td class="jbuli-form" style="'.$tdstyle.'">' . (int) $row['gewonnen'] . '</td>'
+                . '<td class="jbuli-form" style="'.$tdstyle.'">' . (int) $row['unentschieden'] . '</td>'
+                . '<td class="jbuli-form" style="'.$tdstyle.'">' . (int) $row['verloren'] . '</td>'
                 . '<td class="jbuli-optional" style="'.$tdstyle.'">' . (int) $row['tore'] . '</td>'
                 . '<td class="jbuli-optional" style="'.$tdstyle.'">' . (int) $row['gegentore'] . '</td>'
                 . '<td class="jbuli-optional" style="'.$tdstyle.'">' . $diff . '</td>'

@@ -1,3 +1,7 @@
+ * 2.1.3 - Expliziter Hand-Cursor am Vereinsdropdown
+ * 2.1.2 - Einheitlich ausgerichteter Dropdown-Pfeil
+ * 2.1.1 - Vereinslogos neben allen Einträgen des Frontend-Dropdowns
+ * 2.1.0 - Saison-/Liga-Teamlisten, Backendfeld, Dropdownlogo, Langnamen und responsive Prioritäten
  * 2.0.4 - Exakte Teamwerte beim Vereinswechsel, unter anderem für SV Werder Bremen
  * 2.0.3 - Logoquelle des Ergebnismoduls und großzügigeres Zeilenlayout
  * 2.0.2 - Vollständige Logos für 2025/26 und 2026/27 mit API-Fallback

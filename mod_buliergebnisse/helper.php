@@ -23,10 +23,22 @@ class modBuliergebnisseHelper
         $app = JFactory::getApplication();
         $document = $app->getDocument();
         $document->addStyleDeclaration(
-            '#spielplan_' . (int) $module->id . ' { width:100%; max-width:none; }'
+            '#spielplan_' . (int) $module->id . ' { width:100%; max-width:none; container-type:inline-size; }'
             . '#spielplan_' . (int) $module->id . ' table { width:100%; border-collapse:collapse; }'
-            . '#spielplan_' . (int) $module->id . ' td { vertical-align:middle; }'
-            . '#spielplan_' . (int) $module->id . ' img { object-fit:contain; }'
+            . '#spielplan_' . (int) $module->id . ' td { vertical-align:middle; padding:4px 5px; }'
+            . '#spielplan_' . (int) $module->id . ' select { min-height:36px; padding:5px 30px 5px 9px; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'%3E%3Cpath d=\'M1 1.5 6 6.5 11 1.5\' fill=\'none\' stroke=\'%23555\' stroke-width=\'1.6\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:12px 8px; }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-match { border-bottom:1px solid rgba(127,127,127,.22); transition:background-color .15s ease; }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-match:hover { background:rgba(127,127,127,.10); }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-logo { width:28px; min-width:28px; padding-left:2px; padding-right:6px; }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-logo img { display:block; width:20px; height:20px; object-fit:contain; }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-team { width:42%; overflow-wrap:anywhere; hyphens:auto; }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-separator { width:14px; min-width:14px; padding-left:1px; padding-right:1px; text-align:center; }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-result { width:58px; min-width:58px; text-align:right; white-space:nowrap; }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-date { width:34px; min-width:34px; }'
+            . '@container (max-width:400px) {'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-match td { font-size:.93rem; padding-left:3px; padding-right:3px; }'
+            . '#spielplan_' . (int) $module->id . ' .jbuli-team { width:auto; }'
+            . '}'
         );
 
         $document->addScriptDeclaration('
@@ -62,7 +74,7 @@ class modBuliergebnisseHelper
 			data = jQuery.parseJSON(xhr.responseText.substring(xhr.responseText.indexOf("success")-2));
 		  }
 		  catch (e) {
-			alert("Fehlerhafter JSON Response - Doku pruefen!");
+			data = {success: false, message: "Keine Verbindung zum Ergebnisserver. Bitte später erneut versuchen."};
 		  };
 	      jQuery("#buliergebnisse_loading_' . $module->id . '").hide();
           if (data.success == false) {
@@ -242,18 +254,12 @@ class modBuliergebnisseHelper
         $anzahl_ergebnisse = 0;
         $anzahl_live = 0;
         if ($paarungen) {
-            $bezeichnung = 'bezeichnung_mittel';
+            $bezeichnung = $jparams->get('longnames') == '1' ? 'bezeichnung_webservice' : 'bezeichnung_kurz';
             foreach ($paarungen as $partie) {
                 if (isset($partie->MatchResults[0])) {
                     $ergebnisse = $partie->MatchResults[0];
                     if ($ergebnisse instanceof stdClass) {
                         $anzahl_ergebnisse++;
-                        if ($jparams->get('longnames') == '1') {
-                            $bezeichnung = 'bezeichnung_mittel';
-                        } else {
-                            $bezeichnung = 'bezeichnung_kurz';
-                        }
-
                         if ($partie->MatchIsFinished == false) {
                             $anzahl_live++;
                         }
@@ -334,33 +340,33 @@ class modBuliergebnisseHelper
                 }
             }
 
-            $table .= "<tr style='$style'>\r\n";
+            $table .= "<tr class='jbuli-match' style='$style'>\r\n";
 
             if ($jparams->get('kompakt')) {
                 if ($liga == 'cl1617') {
-                    $table .= "<td align='left' valign='middle'>".date("d.m.", strtotime($partie->MatchDateTime))."</td>\r\n";
+                    $table .= "<td class='jbuli-date' align='left' valign='middle'>".date("d.m.", strtotime($partie->MatchDateTime))."</td>\r\n";
                 } else {
-                    $table .= "<td align='left' valign='middle'>".$tage[date("w", strtotime($partie->MatchDateTime))]."</td>\r\n";
+                    $table .= "<td class='jbuli-date' align='left' valign='middle'>".$tage[date("w", strtotime($partie->MatchDateTime))]."</td>\r\n";
                 }
             }
 
             $termin = $partie->MatchDateTime;
 
             // Team 1
-            $table .= "<td align='left' valign='middle'><img style='width:20px; height:20px;' title='".$teams[trim($partie->Team1->TeamName)]['bezeichnung_mittel']."' alt='".$teams[trim($partie->Team1->TeamName)]['bezeichnung_mittel']."' src='".JURI::root()."modules/mod_buliergebnisse/images/".$teams[trim($partie->Team1->TeamName)]['dateiname_logo']."' /></td>\r\n";
-            $table .= "<td align='left' valign='middle'>".$teams[trim($partie->Team1->TeamName)][$bezeichnung]."</td>\r\n";
+            $table .= "<td class='jbuli-logo' align='left' valign='middle'><img title='".$teams[trim($partie->Team1->TeamName)]['bezeichnung_mittel']."' alt='' src='".JURI::root()."modules/mod_buliergebnisse/images/".$teams[trim($partie->Team1->TeamName)]['dateiname_logo']."' /></td>\r\n";
+            $table .= "<td class='jbuli-team' align='left' valign='middle'>".$teams[trim($partie->Team1->TeamName)][$bezeichnung]."</td>\r\n";
 
-            $table .= "<td align='left' valign='middle'>-&nbsp;</td>\r\n";
+            $table .= "<td class='jbuli-separator' align='left' valign='middle'>-</td>\r\n";
 
             // Team 2
-            $table .= "<td align='left' valign='middle'><img style='width:20px; height:20px;' title='".$teams[trim($partie->Team2->TeamName)]['bezeichnung_mittel']."' alt='".$teams[trim($partie->Team2->TeamName)]['bezeichnung_mittel']."' src='".JURI::root()."modules/mod_buliergebnisse/images/".$teams[trim($partie->Team2->TeamName)]['dateiname_logo']."' /></td>\r\n";
-            $table .= "<td align='left' valign='middle'>".$teams[trim($partie->Team2->TeamName)][$bezeichnung]."</td>\r\n";
+            $table .= "<td class='jbuli-logo' align='left' valign='middle'><img title='".$teams[trim($partie->Team2->TeamName)]['bezeichnung_mittel']."' alt='' src='".JURI::root()."modules/mod_buliergebnisse/images/".$teams[trim($partie->Team2->TeamName)]['dateiname_logo']."' /></td>\r\n";
+            $table .= "<td class='jbuli-team' align='left' valign='middle'>".$teams[trim($partie->Team2->TeamName)][$bezeichnung]."</td>\r\n";
 
             $tootip_text = "";
             $endergebnis = "";
             $halbzeitergebnis = "";
             if ($anzahl_ergebnisse > 0) {
-                $table .= "<td align='left' valign='middle'>";
+                $table .= "<td class='jbuli-result' align='left' valign='middle'>";
                 $alle_ergebnisse = $partie->MatchResults;
                 if (isset($alle_ergebnisse[0])) {
                     if (!$partie->MatchIsFinished && $alle_ergebnisse[0] instanceof stdClass) {
@@ -405,14 +411,15 @@ class modBuliergebnisseHelper
                 $tootip_text .= "</nobr>";
 
                 if ($goals <> '') {
-                    $table .= JHtml::_('tooltip', $goals, 'Tore', '', $tootip_text);
+                    $goalTitle = htmlspecialchars(trim(strip_tags(str_replace('<br>', "\n", $goals))), ENT_QUOTES, 'UTF-8');
+                    $table .= '<span class="jbuli-result-tooltip" title="' . $goalTitle . '">' . $tootip_text . '</span>';
                 } else {
                     $table .= $tootip_text;
                 }
 
                 $table .= "</td>\r\n";
             } elseif ($jparams->get('longnames') == '1') {
-                $table .= "<td>-:- (-:-)</td>\r\n";
+                $table .= "<td class='jbuli-result'>-:- (-:-)</td>\r\n";
             }
             $table .= "</tr>\r\n";
         }

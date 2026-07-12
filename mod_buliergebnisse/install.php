@@ -245,7 +245,8 @@ class mod_buliergebnisseInstallerScript
                 (156, 'Dynamo Dresden', 'SGD', 'Dresden', 'dresden.png'),
                 (157, 'Energie Cottbus', 'FCE', 'Cottbus', 'cottbus.svg'),
                 (158, 'FC Energie Cottbus', 'FCE', 'Cottbus', 'cottbus.svg'),
-                (159, 'DSC Arminia Bielefeld', 'DSC', 'Bielefeld', 'bielefeld.png');
+                (159, 'DSC Arminia Bielefeld', 'DSC', 'Bielefeld', 'bielefeld.png'),
+                (160, 'Preußen Münster', 'SCP', 'Münster', 'muenster.svg');
 			   ";
 
         $db->setQuery($query);

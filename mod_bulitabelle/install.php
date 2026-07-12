@@ -78,7 +78,7 @@ class mod_bulitabelleInstallerScript
     private function setupDatabase()
     {
         $db = JFactory::getContainer()->get(DatabaseInterface::class);
-        $query = 'CREATE TABLE IF NOT EXISTS '.$db->quoteName('#__bulitabelle').' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, team VARCHAR(100), spiele INT, gewonnen INT NOT NULL DEFAULT 0, unentschieden INT NOT NULL DEFAULT 0, verloren INT NOT NULL DEFAULT 0, tore INT, gegentore INT, punkte INT, modul_id INT)';
+        $query = 'CREATE TABLE IF NOT EXISTS '.$db->quoteName('#__bulitabelle').' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, team VARCHAR(100), spiele INT, gewonnen INT NOT NULL DEFAULT 0, unentschieden INT NOT NULL DEFAULT 0, verloren INT NOT NULL DEFAULT 0, tore INT, gegentore INT, punkte INT, modul_id INT, UNIQUE KEY uniq_modul_team (modul_id, team))';
         $db->setQuery($query);
         $db->execute();
 
@@ -94,6 +94,21 @@ class mod_bulitabelleInstallerScript
         $query = 'TRUNCATE TABLE '.$db->quoteName('#__bulitabelle');
         $db->setQuery($query);
         $db->execute();
+
+        $hasUniqueKey = false;
+        foreach ($db->getTableKeys($db->replacePrefix('#__bulitabelle')) as $key) {
+            $keyName = strtolower((string) ($key->Key_name ?? $key->key_name ?? ''));
+            if ($keyName === 'uniq_modul_team') {
+                $hasUniqueKey = true;
+                break;
+            }
+        }
+        if (!$hasUniqueKey) {
+            $query = 'ALTER TABLE ' . $db->quoteName('#__bulitabelle')
+                . ' ADD UNIQUE KEY ' . $db->quoteName('uniq_modul_team')
+                . ' (' . $db->quoteName('modul_id') . ', ' . $db->quoteName('team') . ')';
+            $db->setQuery($query)->execute();
+        }
 
         $cachefile = JPATH_BASE."/../modules/mod_bulitabelle/cache.txt";
         if (is_readable($cachefile)) {

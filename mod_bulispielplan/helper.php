@@ -20,9 +20,22 @@ class modBulispielplanHelper
         $activeMenu = $app->getMenu()->getActive();
         $itemId = $activeMenu ? (int) $activeMenu->id : 0;
 
-        $style = '#bulispielplan_' . (int) $module->id . ' { width:100%; max-width:none; }
+        $style = '#bulispielplan_' . (int) $module->id . ' { width:100%; max-width:none; container-type:inline-size; }
               #bulispielplan_' . (int) $module->id . ' table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
-              #bulispielplan_' . (int) $module->id . ' select { width:100%; max-width:100%; padding:6px 8px; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select { display:flex; align-items:center; width:100%; min-height:38px; border:1px solid rgba(127,127,127,.55); border-radius:4px; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select > img { width:22px; height:22px; margin-left:8px; flex:0 0 22px; }
+              #bulispielplan_' . (int) $module->id . ' select { width:100%; height:36px; max-width:100%; padding:5px 8px; border:0; background:transparent; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select.jbuli-enhanced { position:relative; display:block; border:0; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select.jbuli-enhanced > select,
+              #bulispielplan_' . (int) $module->id . ' .jbuli-team-select.jbuli-enhanced > img { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-button { display:flex; align-items:center; gap:9px; width:100%; min-height:38px; padding:6px 34px 6px 9px; cursor:pointer; border:1px solid rgba(127,127,127,.55); border-radius:4px; background-color:transparent; background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'%3E%3Cpath d=\'M1 1.5 6 6.5 11 1.5\' fill=\'none\' stroke=\'%23555\' stroke-width=\'1.6\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:12px 8px; color:inherit; text-align:left; position:relative; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-button img,
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-option img { width:20px; height:20px; flex:0 0 20px; object-fit:contain; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-menu { display:none; position:absolute; z-index:1000; top:calc(100% + 3px); left:0; right:0; max-height:320px; overflow-y:auto; padding:4px; border:1px solid rgba(127,127,127,.55); border-radius:4px; background:var(--body-bg,#fff); box-shadow:0 5px 18px rgba(0,0,0,.18); }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-menu.is-open { display:block; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-option { display:flex; align-items:center; gap:9px; width:100%; min-height:34px; padding:6px 8px; border:0; border-radius:3px; background:transparent; color:inherit; text-align:left; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-option:hover,
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-option:focus { background:rgba(127,127,127,.14); }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td { vertical-align:middle; padding:6px 7px; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule tr { border-bottom:1px solid rgba(127,127,127,.25); }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule tr:hover { background:rgba(127,127,127,.08); }
@@ -31,6 +44,12 @@ class modBulispielplanHelper
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(3) { width:32px; min-width:32px; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(5) { width:2rem; text-align:center; font-weight:700; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { width:3.5rem; text-align:right; font-weight:700; }
+              @container (max-width:460px) {
+                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td { padding-left:3px; padding-right:3px; }
+                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(1),
+                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(5) { display:none; }
+                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { min-width:3.5rem; }
+              }
               #bulispielplan_' . (int) $module->id . ' img { display:block; width:20px; height:20px; object-fit:contain; }';
         $document->addStyleDeclaration($style);
 
@@ -58,6 +77,7 @@ class modBulispielplanHelper
                 jQuery("#bulispielplan_' . $module->id . '").html(data.message);
               } else {
                 jQuery("#bulispielplan_' . $module->id . '").html(data.data);
+                enhance_verein_dropdown_' . $module->id . '();
                 var current = document.getElementById("' . $module->id . '_current");
                 if (current) { current.scrollIntoView({block: "center"}); }
               }
@@ -68,18 +88,67 @@ class modBulispielplanHelper
 			data = jQuery.parseJSON(xhr.responseText.substring(xhr.responseText.indexOf("success")-2));
 		  }
 		  catch (e) {
-			alert("Fehlerhafter JSON Response - Doku pruefen!");
+			data = {success: false, message: "Keine Verbindung zum Ergebnisserver. Bitte später erneut versuchen."};
 		  };
           jQuery("#bulispielplan_loading_' . $module->id . '").hide();
           if (data.success == false) {
             jQuery("#bulispielplan_' . $module->id . '").html(data.message);
           } else {
             jQuery("#bulispielplan_' . $module->id . '").html(data.data);
+            enhance_verein_dropdown_' . $module->id . '();
             var current = document.getElementById("' . $module->id . '_current");
             if (current) { current.scrollIntoView({block: "center"}); }
           }
         });
       };
+
+      function enhance_verein_dropdown_' . $module->id . '() {
+        var select = jQuery("#verein_' . $module->id . '");
+        var wrapper = select.closest(".jbuli-team-select");
+        if (!select.length || wrapper.hasClass("jbuli-enhanced")) { return; }
+
+        var trigger = jQuery("<button type=\"button\" class=\"jbuli-select-button\" aria-haspopup=\"listbox\" aria-expanded=\"false\"></button>");
+        var menu = jQuery("<div class=\"jbuli-select-menu\" role=\"listbox\"></div>");
+
+        function fillButton(option) {
+          trigger.empty();
+          var url = option.data("logo") || "";
+          if (url) { trigger.append(jQuery("<img alt=\"\">").attr("src", url)); }
+          trigger.append(jQuery("<span></span>").text(option.text()));
+        }
+
+        select.find("option").each(function() {
+          var option = jQuery(this);
+          var item = jQuery("<button type=\"button\" class=\"jbuli-select-option\" role=\"option\"></button>");
+          var url = option.data("logo") || "";
+          if (url) { item.append(jQuery("<img alt=\"\">").attr("src", url)); }
+          item.append(jQuery("<span></span>").text(option.text()));
+          item.attr("aria-selected", option.is(":selected") ? "true" : "false");
+          item.on("click", function(event) {
+            event.stopPropagation();
+            select.val(option.val());
+            menu.removeClass("is-open");
+            trigger.attr("aria-expanded", "false");
+            fillButton(option);
+            select.trigger("change");
+          });
+          menu.append(item);
+        });
+
+        trigger.on("click", function(event) {
+          event.stopPropagation();
+          var open = !menu.hasClass("is-open");
+          menu.toggleClass("is-open", open);
+          trigger.attr("aria-expanded", open ? "true" : "false");
+        });
+        jQuery(document).off("click.jbuli_' . $module->id . '").on("click.jbuli_' . $module->id . '", function() {
+          menu.removeClass("is-open");
+          trigger.attr("aria-expanded", "false");
+        });
+
+        wrapper.addClass("jbuli-enhanced").append(trigger, menu);
+        fillButton(select.find("option:selected"));
+      }
     ');
     }
 
@@ -165,17 +234,10 @@ class modBulispielplanHelper
         ];
         $configuredTeam = (string) $jparams->get('meinVerein', '');
         $configuredTeam = $teamAliases[$configuredTeam] ?? $configuredTeam;
-        $query = 'SELECT '.$db->quoteName('liga').' FROM '.$db->quoteName('#__bulispielplan') . ' WHERE bezeichnung_webservice = ' . $db->quote($configuredTeam);
-        $db->setQuery($query);
-        $liga = (string) $db->loadResult();
-        if ($liga === '') {
+        $liga = (string) $jparams->get('league', 'bl1');
+        if (!in_array($liga, ['bl1', 'bl2'], true)) {
             $liga = 'bl1';
         }
-
-        // Teams aus der Joomla Tabelle holen
-        $query = 'SELECT '.$db->quoteName('bezeichnung_webservice').', '.$db->quoteName('bezeichnung_kurz').', '.$db->quoteName('bezeichnung_mittel').', '.$db->quoteName('dateiname_logo').' FROM '.$db->quoteName('#__bulispielplan') . ' WHERE liga = ' . $db->quote($liga) . ' ORDER BY bezeichnung_mittel';
-        $db->setQuery($query);
-        $teams = $db->loadAssocList('bezeichnung_webservice');
 
         // Für historische Spielpläne alle bekannten Vereine als Logo-Mapping laden.
         // Die Ligazugehörigkeit in der Stammtabelle bildet nur die aktuelle Saison ab.
@@ -201,14 +263,38 @@ class modBulispielplanHelper
             }
         }
 
+        // Die Vereinsauswahl exakt aus Liga und Saison der API aufbauen.
+        $availableJson = self::fetchdata(
+            'https://api.openligadb.de/getavailableteams/' . $liga . '/' . (int) $jparams->get('season'),
+            $jparams->get('timeout')
+        );
+        $availableTeams = $availableJson ? self::decodeApiResponse($availableJson) : [];
+        $teams = [];
+        foreach ((array) $availableTeams as $apiTeam) {
+            $name = (string) ($apiTeam->TeamName ?? '');
+            if ($name === '') {
+                continue;
+            }
+            $teams[$name] = $allTeams[$name] ?? [
+                'bezeichnung_webservice' => $name,
+                'bezeichnung_kurz' => (string) ($apiTeam->ShortName ?? $name),
+                'bezeichnung_mittel' => (string) ($apiTeam->ShortName ?? $name),
+                'dateiname_logo' => '',
+                'logo_module' => '',
+            ];
+            $teams[$name]['team_icon_url'] = (string) ($apiTeam->TeamIconUrl ?? '');
+        }
+        uasort($teams, static fn(array $a, array $b): int => strcasecmp($a['bezeichnung_mittel'], $b['bezeichnung_mittel']));
+
         // Start HTML OUTPUT
         $table = "\r\n<table class='jbuli-team-selector'>\r\n";
 
         // Verein Dropdown
-        $table .= "<tr><td align='left' valign='middle'><nobr><select id='verein_" . $module->id . "'>";
+        $table .= "<tr><td><div class='jbuli-team-select'><img id='verein_logo_" . $module->id . "' alt='' style='display:none;'><select id='verein_" . $module->id . "'>";
         $verein = '';
         $requestedTeam = trim($jinput->getString('verein', ''));
         $requestedTeam = $teamAliases[$requestedTeam] ?? $requestedTeam;
+        $useLongNames = $jparams->get('longnames') == '1';
 
         foreach ($teams as $team) {
             $teamName = (string) $team['bezeichnung_webservice'];
@@ -220,9 +306,13 @@ class modBulispielplanHelper
             if ($selected) {
                 $verein = $teamName;
             }
+            $logoUrl = !empty($team['dateiname_logo']) && !empty($team['logo_module'])
+                ? JURI::root() . 'modules/' . $team['logo_module'] . '/images/' . rawurlencode($team['dateiname_logo'])
+                : (string) ($team['team_icon_url'] ?? '');
             $table .= '<option value="' . htmlspecialchars($teamName, ENT_QUOTES, 'UTF-8') . '"'
+                . ' data-logo="' . htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') . '"'
                 . ($selected ? ' selected="selected"' : '') . '>'
-                . htmlspecialchars((string) $team['bezeichnung_mittel'], ENT_QUOTES, 'UTF-8')
+                . htmlspecialchars($useLongNames ? $teamName : (string) $team['bezeichnung_mittel'], ENT_QUOTES, 'UTF-8')
                 . '</option>';
         }
 
@@ -231,7 +321,7 @@ class modBulispielplanHelper
             $verein = $firstTeam['bezeichnung_webservice'];
         }
 
-        $table .= "</select>&nbsp;&nbsp;&nbsp;<img id='bulispielplan_loading_" . $module->id . "' src='".JURI::root()."modules/mod_bulispielplan/images/ajax-loader.gif' style='display:none;'></nobr></td></tr></table>";
+        $table .= "</select><img id='bulispielplan_loading_" . $module->id . "' src='".JURI::root()."modules/mod_bulispielplan/images/ajax-loader.gif' style='display:none; margin-right:8px;'></div></td></tr></table>";
         $table .= "<div class='jbuli-schedule-scroll' style='height:" . (int) $jparams->get('hoehe', 400) . "px; width:100%; overflow-y:auto; overflow-x:hidden; margin-top:1rem;'>";
         $table .= "<table class='jbuli-schedule'>\r\n";
 
@@ -392,7 +482,7 @@ class modBulispielplanHelper
                     $anzeige = $opponent->TeamName;
                     if ($partie->wettbewerb == $ligen[0]) {
                         $teamData = $allTeams[$opponent->TeamName] ?? null;
-                        $anzeige = $teamData['bezeichnung_mittel'] ?? $opponent->TeamName;
+                        $anzeige = $useLongNames ? $opponent->TeamName : ($teamData['bezeichnung_mittel'] ?? $opponent->TeamName);
                         $bildSrc = $teamData
                             ? JURI::root().'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
                             : (string) ($opponent->TeamIconUrl ?? '');
@@ -403,7 +493,7 @@ class modBulispielplanHelper
                     $anzeige = $opponent->TeamName;
                     if ($partie->wettbewerb == $ligen[0]) {
                         $teamData = $allTeams[$opponent->TeamName] ?? null;
-                        $anzeige = $teamData['bezeichnung_mittel'] ?? $opponent->TeamName;
+                        $anzeige = $useLongNames ? $opponent->TeamName : ($teamData['bezeichnung_mittel'] ?? $opponent->TeamName);
                         $bildSrc = $teamData
                             ? JURI::root().'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
                             : (string) ($opponent->TeamIconUrl ?? '');

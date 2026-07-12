@@ -1,3 +1,6 @@
+ * 2.1.2 - Hand-Cursor und stabiles Langnamen-/Logo-Layout
+ * 2.1.1 - Einheitlich ausgerichteter Dropdown-Pfeil
+ * 2.1.0 - Persistente Anzeigeoptionen, offizielle Langnamen, Hover und Torschützen-Tooltips
  * 2.0.3 - Gemeinsamer Release-Stand mit verbessertem Tabellenlayout
  * 2.0.2 - Gemeinsamer Release-Stand der Joomla-6-Module
  * 2.0.1 - Responsive Modulbreite und Joomla-6-Fehlerbehandlung
