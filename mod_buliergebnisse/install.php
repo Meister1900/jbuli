@@ -69,7 +69,7 @@ class mod_buliergebnisseInstallerScript
     public function uninstall($adapter)
     {
         $db = JFactory::getContainer()->get(DatabaseInterface::class);
-        $query = 'DROP TABLE '.$db->quoteName('#__buliergebnisse');
+        $query = 'DROP TABLE IF EXISTS '.$db->quoteName('#__buliergebnisse');
 
         $db->setQuery($query);
         $db->execute();
@@ -253,8 +253,8 @@ class mod_buliergebnisseInstallerScript
         $db->execute();
 
         $cachefile = JPATH_BASE."/../modules/mod_buliergebnisse/cache.txt";
-        if (is_readable($cachefile)) {
-            unlink($cachefile);
+        if (is_file($cachefile)) {
+            @unlink($cachefile);
         }
     }
 }

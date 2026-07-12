@@ -3,7 +3,6 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\Registry\Registry as JRegistry;
 use Joomla\CMS\Uri\Uri as JURI;
-use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
 use Joomla\Database\DatabaseInterface;
 
 class modBulispielplanHelper
@@ -31,24 +30,27 @@ class modBulispielplanHelper
               #bulispielplan_' . (int) $module->id . ' .jbuli-select-button { display:flex; align-items:center; gap:9px; width:100%; min-height:38px; padding:6px 34px 6px 9px; cursor:pointer; border:1px solid rgba(127,127,127,.55); border-radius:4px; background-color:transparent; background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'%3E%3Cpath d=\'M1 1.5 6 6.5 11 1.5\' fill=\'none\' stroke=\'%23555\' stroke-width=\'1.6\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:12px 8px; color:inherit; text-align:left; position:relative; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-select-button img,
               #bulispielplan_' . (int) $module->id . ' .jbuli-select-option img { width:20px; height:20px; flex:0 0 20px; object-fit:contain; }
-              #bulispielplan_' . (int) $module->id . ' .jbuli-select-menu { display:none; position:absolute; z-index:1000; top:calc(100% + 3px); left:0; right:0; max-height:320px; overflow-y:auto; padding:4px; border:1px solid rgba(127,127,127,.55); border-radius:4px; background:var(--body-bg,#fff); box-shadow:0 5px 18px rgba(0,0,0,.18); }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-menu { display:none; position:absolute; z-index:1000; top:calc(100% + 3px); left:0; right:0; max-height:320px; overflow-y:auto; padding:4px; border:1px solid rgba(127,127,127,.55); border-radius:4px; box-shadow:0 5px 18px rgba(0,0,0,.18); }
               #bulispielplan_' . (int) $module->id . ' .jbuli-select-menu.is-open { display:block; }
-              #bulispielplan_' . (int) $module->id . ' .jbuli-select-option { display:flex; align-items:center; gap:9px; width:100%; min-height:34px; padding:6px 8px; border:0; border-radius:3px; background:transparent; color:inherit; text-align:left; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-option { display:flex; align-items:center; gap:9px; width:100%; min-height:34px; padding:6px 8px; border:0; border-radius:3px; background:transparent !important; color:inherit !important; text-align:left; cursor:pointer; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-select-option:hover,
-              #bulispielplan_' . (int) $module->id . ' .jbuli-select-option:focus { background:rgba(127,127,127,.14); }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-select-option:focus { background:rgba(127,127,127,.14) !important; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td { vertical-align:middle; padding:6px 7px; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule tr { border-bottom:1px solid rgba(127,127,127,.25); }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule tr:hover { background:rgba(127,127,127,.08); }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(1) { width:2.2rem; text-align:right; font-weight:700; }
-              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(2) { width:3.8rem; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(2) { width:6.2rem; min-width:6.2rem; white-space:nowrap; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(3) { width:32px; min-width:32px; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(4) { min-width:70px; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(5) { width:2rem; text-align:center; font-weight:700; }
-              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { width:3.5rem; text-align:right; font-weight:700; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { width:4rem; min-width:4rem; padding-right:12px; text-align:center; font-weight:700; white-space:nowrap; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule.jbuli-hide-year td:nth-child(2) { width:3.8rem; min-width:3.8rem; }
+              #bulispielplan_' . (int) $module->id . ' .jbuli-schedule.jbuli-hide-year .jbuli-date-year { display:none; }
               @container (max-width:460px) {
                 #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td { padding-left:3px; padding-right:3px; }
-                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(1),
-                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(5) { display:none; }
-                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { min-width:3.5rem; }
+                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(1) { display:none; }
+                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(5) { width:1.6rem; min-width:1.6rem; display:table-cell; }
+                #bulispielplan_' . (int) $module->id . ' .jbuli-schedule td:nth-child(6) { min-width:4rem; padding-right:10px; }
               }
               #bulispielplan_' . (int) $module->id . ' img { display:block; width:20px; height:20px; object-fit:contain; }';
         $document->addStyleDeclaration($style);
@@ -57,9 +59,30 @@ class modBulispielplanHelper
       jQuery(document).ready(function() {
         change_verein_' . $module->id . '();
         jQuery(document).on("change", "#verein_' . $module->id . '", change_verein_' . $module->id . ');
+        var container = document.getElementById("bulispielplan_' . $module->id . '");
+        if (container && window.ResizeObserver) {
+          new ResizeObserver(function() {
+            window.requestAnimationFrame(fit_spielplan_date_' . $module->id . ');
+          }).observe(container);
+        } else {
+          jQuery(window).on("resize.bulispielplan_' . $module->id . '", fit_spielplan_date_' . $module->id . ');
+        }
       });
+
+      function fit_spielplan_date_' . $module->id . '() {
+        var container = document.getElementById("bulispielplan_' . $module->id . '");
+        var scroll = container ? container.querySelector(".jbuli-schedule-scroll") : null;
+        var table = scroll ? scroll.querySelector(".jbuli-schedule") : null;
+        if (!scroll || !table) { return; }
+        table.classList.remove("jbuli-hide-year");
+        if (table.scrollWidth > scroll.clientWidth + 1) {
+          table.classList.add("jbuli-hide-year");
+        }
+      }
         
       function change_verein_' . $module->id . '() {
+        var requestNumber = (window.jbuliSpielplanRequest_' . $module->id . ' || 0) + 1;
+        window.jbuliSpielplanRequest_' . $module->id . ' = requestNumber;
         jQuery("#bulispielplan_loading_' . $module->id . '").show();
         jQuery.post( "' . JURI::base() . 'index.php",
             {
@@ -72,17 +95,20 @@ class modBulispielplanHelper
               verein: jQuery("#verein_' . $module->id . '").val(),
             },
             function(data){
+              if (requestNumber !== window.jbuliSpielplanRequest_' . $module->id . ') { return; }
               jQuery("#bulispielplan_loading_' . $module->id . '").hide();
               if (data.success == false) {
                 jQuery("#bulispielplan_' . $module->id . '").html(data.message);
               } else {
                 jQuery("#bulispielplan_' . $module->id . '").html(data.data);
                 enhance_verein_dropdown_' . $module->id . '();
+                fit_spielplan_date_' . $module->id . '();
                 var current = document.getElementById("' . $module->id . '_current");
                 if (current) { current.scrollIntoView({block: "center"}); }
               }
             }
         ).fail(function(xhr) {
+          if (requestNumber !== window.jbuliSpielplanRequest_' . $module->id . ') { return; }
 		  try {
 			// Ungewollten Output von anderen Plugins wie GoogleAnalytics oder PHP Meldungen wegschneiden
 			data = jQuery.parseJSON(xhr.responseText.substring(xhr.responseText.indexOf("success")-2));
@@ -96,6 +122,7 @@ class modBulispielplanHelper
           } else {
             jQuery("#bulispielplan_' . $module->id . '").html(data.data);
             enhance_verein_dropdown_' . $module->id . '();
+            fit_spielplan_date_' . $module->id . '();
             var current = document.getElementById("' . $module->id . '_current");
             if (current) { current.scrollIntoView({block: "center"}); }
           }
@@ -138,6 +165,17 @@ class modBulispielplanHelper
         trigger.on("click", function(event) {
           event.stopPropagation();
           var open = !menu.hasClass("is-open");
+          if (open) {
+            var surface = wrapper.parent();
+            while (surface.length) {
+              var background = window.getComputedStyle(surface[0]).backgroundColor;
+              if (background && background !== "rgba(0, 0, 0, 0)" && background !== "transparent") {
+                menu.css({backgroundColor: background, color: window.getComputedStyle(surface[0]).color});
+                break;
+              }
+              surface = surface.parent();
+            }
+          }
           menu.toggleClass("is-open", open);
           trigger.attr("aria-expanded", open ? "true" : "false");
         });
@@ -168,7 +206,6 @@ class modBulispielplanHelper
             curl_setopt($curl, CURLOPT_USERAGENT, 'Joomla/6 mod_bulispielplan');
             $content = curl_exec($curl);
             $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-            curl_close($curl);
             return $content !== false && $status >= 200 && $status < 300 ? $content : false;
         } elseif (ini_get('allow_url_fopen')) {
             $context = stream_context_create([
@@ -263,14 +300,19 @@ class modBulispielplanHelper
             }
         }
 
-        // Die Vereinsauswahl exakt aus Liga und Saison der API aufbauen.
-        $availableJson = self::fetchdata(
-            'https://api.openligadb.de/getavailableteams/' . $liga . '/' . (int) $jparams->get('season'),
-            $jparams->get('timeout')
+        // Die Vereinsauswahl exakt aus Liga und Saison der API aufbauen und
+        // gegen parallele Reloads sowie kurzfristige API-Ausfälle absichern.
+        $season = (int) $jparams->get('season');
+        $cacheTtl = max(60, (int) $jparams->get('refresh', 60) * 60);
+        $availableCachefile = JPATH_CACHE . '/mod_bulispielplan_teams_' . $liga . '_' . $season . '.json';
+        $availableTeams = self::fetchCachedApiArray(
+            'https://api.openligadb.de/getavailableteams/' . $liga . '/' . $season,
+            $availableCachefile,
+            (int) $jparams->get('timeout'),
+            $cacheTtl
         );
-        $availableTeams = $availableJson ? self::decodeApiResponse($availableJson) : [];
         $teams = [];
-        foreach ((array) $availableTeams as $apiTeam) {
+        foreach ($availableTeams as $apiTeam) {
             $name = (string) ($apiTeam->TeamName ?? '');
             if ($name === '') {
                 continue;
@@ -284,6 +326,19 @@ class modBulispielplanHelper
             ];
             $teams[$name]['team_icon_url'] = (string) ($apiTeam->TeamIconUrl ?? '');
         }
+        $requestedTeam = trim($jinput->getString('verein', ''));
+        $requestedTeam = $teamAliases[$requestedTeam] ?? $requestedTeam;
+        $fallbackTeam = $requestedTeam !== '' ? $requestedTeam : $configuredTeam;
+        if ($teams === [] && $fallbackTeam !== '') {
+            $teams[$fallbackTeam] = $allTeams[$fallbackTeam] ?? [
+                'bezeichnung_webservice' => $fallbackTeam,
+                'bezeichnung_kurz' => $fallbackTeam,
+                'bezeichnung_mittel' => $fallbackTeam,
+                'dateiname_logo' => '',
+                'logo_module' => '',
+                'team_icon_url' => '',
+            ];
+        }
         uasort($teams, static fn(array $a, array $b): int => strcasecmp($a['bezeichnung_mittel'], $b['bezeichnung_mittel']));
 
         // Start HTML OUTPUT
@@ -292,8 +347,6 @@ class modBulispielplanHelper
         // Verein Dropdown
         $table .= "<tr><td><div class='jbuli-team-select'><img id='verein_logo_" . $module->id . "' alt='' style='display:none;'><select id='verein_" . $module->id . "'>";
         $verein = '';
-        $requestedTeam = trim($jinput->getString('verein', ''));
-        $requestedTeam = $teamAliases[$requestedTeam] ?? $requestedTeam;
         $useLongNames = $jparams->get('longnames') == '1';
 
         foreach ($teams as $team) {
@@ -325,47 +378,36 @@ class modBulispielplanHelper
         $table .= "<div class='jbuli-schedule-scroll' style='height:" . (int) $jparams->get('hoehe', 400) . "px; width:100%; overflow-y:auto; overflow-x:hidden; margin-top:1rem;'>";
         $table .= "<table class='jbuli-schedule'>\r\n";
 
-        $ligen = [$liga, 'dfb' . $jparams->get('season')];
+        $ligen = [$liga, 'dfb' . $season];
         $partien = [];
 
-        foreach ($ligen as $competitionIndex => $liga) {
-            $cache = '';
-            $paarungen = [];
-            $cachefile = JPATH_CACHE . '/mod_bulispielplan_' . preg_replace('/[^a-z0-9_-]/i', '', $liga) . '_' . (int) $jparams->get('season') . '.json';
-            if (is_readable($cachefile)) {
-                $cache = file_get_contents($cachefile);
-                $paarungen = self::decodeApiResponse($cache) ?: [];
-            }
-
-            // Daten neu holen wenn Refresh-Intervall erreicht
-            $cacheExpired = !is_file($cachefile)
-                || filemtime($cachefile) + ((int) $jparams->get('refresh', 60) * 60) < time();
-            if ($cache === '' || $cacheExpired) {
-                $paarungenjson = self::fetchdata('https://www.openligadb.de/api/getmatchdata/' . $liga . '/' . $jparams->get('season'), $jparams->get('timeout'));
-
-                if ($paarungenjson != false && stristr($paarungenjson, 'Maximale Abfrageanzahl von 1000 Abfragen pro Tag erreicht!') == false && stristr($paarungenjson, 'An error has occurred') == false) {
-                    $paarungen = self::decodeApiResponse($paarungenjson) ?: [];
-                    file_put_contents($cachefile, $paarungenjson, LOCK_EX);
-
-                } else {
-                    if ($cache == '') {
-                        // Zusatzwettbewerbe sind optional; die Liga trotzdem anzeigen.
-                        if ($competitionIndex === 0) {
-                            throw new RuntimeException((string) $jparams->get('timeout_error'));
-                        }
-                        continue;
-                    } else {
-                        $paarungen = self::decodeApiResponse($cache) ?: [];
-                    }
+        foreach ($ligen as $competitionIndex => $competition) {
+            $cachefile = JPATH_CACHE . '/mod_bulispielplan_' . preg_replace('/[^a-z0-9_-]/i', '', $competition) . '_' . $season . '.json';
+            $paarungen = self::fetchCachedApiArray(
+                'https://api.openligadb.de/getmatchdata/' . $competition . '/' . $season,
+                $cachefile,
+                (int) $jparams->get('timeout'),
+                $cacheTtl
+            );
+            if ($paarungen === []) {
+                // Zusatzwettbewerbe sind optional; die Liga trotzdem anzeigen.
+                if ($competitionIndex === 0) {
+                    throw new RuntimeException((string) $jparams->get('timeout_error'));
                 }
+                continue;
             }
 
-            foreach ((array) $paarungen as $partie) {
-                $partie->wettbewerb = $liga;
+            foreach ($paarungen as $partie) {
+                $partie->wettbewerb = $competition;
             }
 
-            $partien = array_merge($partien, (array) $paarungen);
+            $partien = array_merge($partien, $paarungen);
         }
+
+        $partien = array_values(array_filter($partien, static function ($partie): bool {
+            return is_object($partie)
+                && isset($partie->Team1->TeamName, $partie->Team2->TeamName, $partie->MatchDateTime);
+        }));
 
         usort($partien, function ($a, $b) {
             return strcmp($a->MatchDateTime, $b->MatchDateTime);
@@ -388,8 +430,8 @@ class modBulispielplanHelper
                 $c++;
                 $tootip_text = '';
                 $goals = '';
-                $ergebnisse = '<td>';
-                $alle_ergebnisse = $partie->MatchResults;
+                $ergebnisse = '<td class="jbuli-result">';
+                $alle_ergebnisse = is_array($partie->MatchResults ?? null) ? $partie->MatchResults : [];
 
                 if (! is_array($alle_ergebnisse) || count($alle_ergebnisse) == 0) {
                     $tootip_text .= '&nbsp;-:-';
@@ -401,7 +443,7 @@ class modBulispielplanHelper
 
                     $hat_ergebnisse = false;
                 } else {
-                    if (!$partie->MatchIsFinished && $alle_ergebnisse[0] instanceof stdClass) {
+                    if (!($partie->MatchIsFinished ?? true) && $alle_ergebnisse[0] instanceof stdClass) {
                         $tootip_text .= '<font color="red">';
                     }
 
@@ -411,7 +453,7 @@ class modBulispielplanHelper
 
                     // Endergebnis ermitteln
                     foreach ($alle_ergebnisse as $ergebnis) {
-                        if ($ergebnis->ResultName == 'Endergebnis') {
+                        if (($ergebnis->ResultName ?? '') == 'Endergebnis' && isset($ergebnis->PointsTeam1, $ergebnis->PointsTeam2)) {
                             if ($partie->Team1->TeamName == $verein) {
                                 $tootip_text .= $ergebnis->PointsTeam1.":".$ergebnis->PointsTeam2;
                             } else {
@@ -422,19 +464,21 @@ class modBulispielplanHelper
                         }
                     }
 
-                    foreach ($partie->Goals as $goal) {
-                        if ($goal->GoalGetterName) {
-                            if ($goal->MatchMinute) {
+                    foreach ((array) ($partie->Goals ?? []) as $goal) {
+                        if (!empty($goal->GoalGetterName)) {
+                            $scoreTeam1 = (int) ($goal->ScoreTeam1 ?? 0);
+                            $scoreTeam2 = (int) ($goal->ScoreTeam2 ?? 0);
+                            if (!empty($goal->MatchMinute)) {
                                 if ($partie->Team1->TeamName == $verein) {
-                                    $goals .= '<b>' . $goal->ScoreTeam1 . ':' . $goal->ScoreTeam2 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . ' (' . $goal->MatchMinute . '.)<br>';
+                                    $goals .= '<b>' . $scoreTeam1 . ':' . $scoreTeam2 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . ' (' . $goal->MatchMinute . '.)<br>';
                                 } else {
-                                    $goals .= '<b>' . $goal->ScoreTeam2 . ':' . $goal->ScoreTeam1 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . ' (' . $goal->MatchMinute . '.)<br>';
+                                    $goals .= '<b>' . $scoreTeam2 . ':' . $scoreTeam1 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . ' (' . $goal->MatchMinute . '.)<br>';
                                 }
                             } else {
                                 if ($partie->Team1->TeamName == $verein) {
-                                    $goals .= '<b>' . $goal->ScoreTeam1 . ':' . $goal->ScoreTeam2 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . '<br>';
+                                    $goals .= '<b>' . $scoreTeam1 . ':' . $scoreTeam2 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . '<br>';
                                 } else {
-                                    $goals .= '<b>' . $goal->ScoreTeam2 . ':' . $goal->ScoreTeam1 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . '<br>';
+                                    $goals .= '<b>' . $scoreTeam2 . ':' . $scoreTeam1 . '</b>&nbsp;&nbsp;' . $goal->GoalGetterName . '<br>';
                                 }
                             }
                         }
@@ -514,15 +558,83 @@ class modBulispielplanHelper
                     . date('d.m.Y H:i', strtotime($partie->MatchDateTime)) . ' Uhr'
                     . (isset($partie->Location) && is_object($partie->Location) && !empty($partie->Location->LocationStadium) ? ' – ' . $partie->Location->LocationStadium : '');
                 $table .= '<tr id="' . $module->id . '_' . $id . '"><td style="text-align:right; padding-right: 5px;">' . $kurz . '</td>
-        <td title="' . htmlspecialchars($dateTitle, ENT_QUOTES, 'UTF-8') . '">' . date('d.m.', strtotime($partie->MatchDateTime)) . '</td>
+        <td title="' . htmlspecialchars($dateTitle, ENT_QUOTES, 'UTF-8') . '">' . date('d.m.', strtotime($partie->MatchDateTime)) . '<span class="jbuli-date-year">' . date('Y', strtotime($partie->MatchDateTime)) . '</span></td>
         <td><img style="width:20px; height:20px; object-fit:contain;" title="' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '" alt="" src="' . htmlspecialchars($bildSrc, ENT_QUOTES, 'UTF-8') . '"></td>
-        <td style="width:100%;"><div title="' . $tooltip . '" style="cursor:default; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' . $anzeige . '</div></td>
-        <td>' . $wo . '</td><td>' . $ergebnisse . '</tr>';
+        <td style="width:100%;"><div title="' . htmlspecialchars($tooltip, ENT_QUOTES, 'UTF-8') . '" style="cursor:default; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '</div></td>
+        <td>' . $wo . '</td>' . $ergebnisse . '</tr>';
             }
         }
 
         $table .= "</table></div>";
 
         return $table;
+    }
+
+    private static function fetchCachedApiArray(string $url, string $cachefile, int $timeout, int $cacheTtl): array
+    {
+        $readCache = static function () use ($cachefile): array {
+            if (!is_readable($cachefile)) {
+                return [];
+            }
+            $json = file_get_contents($cachefile);
+            if (!is_string($json) || $json === '') {
+                return [];
+            }
+            $decoded = self::decodeApiResponse($json);
+
+            return is_array($decoded) ? $decoded : [];
+        };
+
+        $cached = $readCache();
+        $cacheIsFresh = $cached !== [] && is_file($cachefile)
+            && filemtime($cachefile) + $cacheTtl >= time();
+        if ($cacheIsFresh) {
+            return $cached;
+        }
+
+        $lockHandle = @fopen($cachefile . '.lock', 'c');
+        $hasLock = is_resource($lockHandle) && @flock($lockHandle, LOCK_EX);
+        if ($hasLock) {
+            // Ein paralleler Request könnte den Cache während des Wartens bereits
+            // gefüllt haben. Deshalb nach dem Lock noch einmal prüfen.
+            $lockedCache = $readCache();
+            $lockedCacheIsFresh = $lockedCache !== [] && is_file($cachefile)
+                && filemtime($cachefile) + $cacheTtl >= time();
+            if ($lockedCacheIsFresh) {
+                @flock($lockHandle, LOCK_UN);
+                fclose($lockHandle);
+
+                return $lockedCache;
+            }
+            if ($lockedCache !== []) {
+                $cached = $lockedCache;
+            }
+        }
+
+        $json = self::fetchdata($url, $timeout);
+        $decoded = is_string($json) ? self::decodeApiResponse($json) : null;
+        if (is_array($decoded) && $decoded !== []) {
+            self::writeCacheAtomically($cachefile, $json);
+            $cached = $decoded;
+        }
+
+        if ($hasLock) {
+            @flock($lockHandle, LOCK_UN);
+        }
+        if (is_resource($lockHandle)) {
+            fclose($lockHandle);
+        }
+
+        return $cached;
+    }
+
+    private static function writeCacheAtomically(string $cachefile, string $content): void
+    {
+        $temporaryFile = $cachefile . '.' . bin2hex(random_bytes(6)) . '.tmp';
+        if (@file_put_contents($temporaryFile, $content, LOCK_EX) !== false) {
+            if (!@rename($temporaryFile, $cachefile)) {
+                @unlink($temporaryFile);
+            }
+        }
     }
 }

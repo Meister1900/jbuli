@@ -72,7 +72,7 @@ class mod_bulispielplanInstallerScript
     public function uninstall($adapter)
     {
         $db = JFactory::getContainer()->get(DatabaseInterface::class);
-        $query = 'DROP TABLE '.$db->quoteName('#__bulispielplan');
+        $query = 'DROP TABLE IF EXISTS '.$db->quoteName('#__bulispielplan');
 
         $db->setQuery($query);
         $db->execute();
@@ -156,8 +156,18 @@ class mod_bulispielplanInstallerScript
         }
 
         foreach (glob(JPATH_BASE."/../modules/mod_bulispielplan/cache_*.txt") as $cachefile) {
-            if (is_readable($cachefile)) {
-                unlink($cachefile);
+            if (is_file($cachefile)) {
+                @unlink($cachefile);
+            }
+        }
+        foreach (glob(JPATH_CACHE . '/mod_bulispielplan_*.json') as $cachefile) {
+            if (is_file($cachefile)) {
+                @unlink($cachefile);
+            }
+        }
+        foreach (glob(JPATH_CACHE . '/mod_bulispielplan_*.lock') as $lockfile) {
+            if (is_file($lockfile)) {
+                @unlink($lockfile);
             }
         }
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Jbuli\Module\Bulispielplan\Site\Field;
+namespace Jbuli\Module\Bulitabelle\Site\Field;
 
 defined('_JEXEC') or die;
 
@@ -39,7 +39,7 @@ class TeamsField extends ListField
         usort($options, static fn($a, $b): int => strcasecmp($a->text, $b->text));
 
         return array_merge(
-            [HTMLHelper::_('select.option', '', 'Bitte Verein wählen')],
+            [HTMLHelper::_('select.option', '', 'Keinen Verein hervorheben')],
             $options
         );
     }
@@ -56,7 +56,7 @@ class TeamsField extends ListField
             CURLOPT_CONNECTTIMEOUT => 3,
             CURLOPT_TIMEOUT => 6,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_USERAGENT => 'Joomla/6 mod_bulispielplan backend',
+            CURLOPT_USERAGENT => 'Joomla/6 mod_bulitabelle backend',
         ]);
         $content = curl_exec($curl);
         $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);

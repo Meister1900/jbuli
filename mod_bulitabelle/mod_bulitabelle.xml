@@ -7,19 +7,21 @@
 	<license>GNU/GPL</license>
 	<authorEmail>webmaster@krupphome.de</authorEmail>
 	<authorUrl>www.jbuli.de</authorUrl>
-	<version>2.1.0</version>
+	<version>2.1.5</version>
 	<description>Bundesliga Tabelle für Joomla</description>
+	<namespace path="src">Jbuli\Module\Bulitabelle</namespace>
   <scriptfile>install.php</scriptfile>
 	<files>
 		<filename module="mod_bulitabelle">mod_bulitabelle.php</filename>
 		<folder>images</folder>
 		<filename>index.html</filename>
 		<filename>helper.php</filename>
+		<folder>src</folder>
 		<filename>tmpl/default.php</filename>
 	</files>
 	<config>
 		<fields name="params">
-			<fieldset name="basic">
+			<fieldset name="basic" addfieldprefix="Jbuli\Module\Bulitabelle\Site\Field">
 				<field name="league" type="list" default="bl1" label="Liga" description="Liga"><option value="bl1">1. Bundesliga</option><option value="bl2">2. Bundesliga</option></field>
 				<field name="season" type="number" default="2026" label="Saison" description="Für die Bundesliga Saison 2026/2027 lautet der Wert '2026'" />
 				<field name="longnames" type="radio" layout="joomla.form.field.radio.switcher" default="0" label="Lange Vereinsnamen?" description="Offizielle vollständige Vereinsnamen anzeigen?"><option value="0">JNO</option><option value="1">JYES</option></field>
@@ -29,7 +31,7 @@
           <option value="1">JA</option>
           <option value="0">NEIN</option>
         </field>
-				<field name="meinVerein" type="list" default="" label="Verein hervorheben" description="Verein auswählen, der hervorgehoben werden soll">
+				<field name="meinVerein" type="teams" default="" label="Verein hervorheben" description="Verein der gewählten Liga und Saison; nach Änderung von Liga oder Saison einmal speichern">
 					<option value="">Keinen</option>
 				<option value="1. FC Heidenheim 1846">1. FC Heidenheim 1846</option>
 					<option value="1. FC Köln">1. FC Köln</option>

@@ -1,3 +1,8 @@
+ * 2.1.5 - Liga-/Saison-Teamfeld im Backend und leere Folgeplätze bei vollständiger Ranggleichheit
+ * 2.1.4 - PHP-8-Produktionshärtung für Cache, AJAX und unvollständige API-Antworten
+ * 2.1.3 - Automatische, inhaltsabhängige Spaltenauswahl per ResizeObserver ohne festen Breakpoint
+ * 2.1.2 - Gemeinsame Tore-Spalte im Format geschossen:kassiert und 130-px-Umschaltpunkt
+ * 2.1.1 - Doppelte Teams verhindert, stärkere Zonenlinien und breitere responsive Vollansicht
  * 2.1.0 - Diff.-Spalte, Münster-Logo, Langnamen und schmale Sidebar-Ansicht
  * 2.0.3 - Sporttabellen-Layout mit mehr Abstand und hervorgehobenen Punkten
  * 2.0.2 - G/U/V auch in schmalen Modulpositionen sichtbar

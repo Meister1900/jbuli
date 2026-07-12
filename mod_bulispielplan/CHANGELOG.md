@@ -1,3 +1,8 @@
+ * 2.1.8 - Vereinslisten-Cache und Request-Lock gegen leere Spielpläne bei schnellen Reloads
+ * 2.1.7 - PHP-8-Produktionshärtung, API-Validierung und Entfernung ungenutzter Altbibliotheken
+ * 2.1.6 - Jahreszahl abhängig von der tatsächlich verfügbaren Modulbreite
+ * 2.1.5 - Jahreszahl im Spielplan und mehr Abstand der Ergebnisspalte zum rechten Rand
+ * 2.1.4 - H/A-Anzeige, stabiles Cache-Schreiben, lesbares Dropdown und persistente Backendauswahl
  * 2.1.3 - Expliziter Hand-Cursor am Vereinsdropdown
  * 2.1.2 - Einheitlich ausgerichteter Dropdown-Pfeil
  * 2.1.1 - Vereinslogos neben allen Einträgen des Frontend-Dropdowns

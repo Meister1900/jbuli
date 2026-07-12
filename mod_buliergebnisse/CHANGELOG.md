@@ -1,3 +1,6 @@
+ * 2.1.5 - Letzter Spieltag als automatische Vorgabe für abgeschlossene Saisons
+ * 2.1.4 - PHP-8-Produktionshärtung für Cache, AJAX, API-Randfälle und Ausgabesicherheit
+ * 2.1.3 - Drei Namensstufen und templateunabhängig begrenztes Spieltag-Dropdown
  * 2.1.2 - Hand-Cursor und stabiles Langnamen-/Logo-Layout
  * 2.1.1 - Einheitlich ausgerichteter Dropdown-Pfeil
  * 2.1.0 - Persistente Anzeigeoptionen, offizielle Langnamen, Hover und Torschützen-Tooltips

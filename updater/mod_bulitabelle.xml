@@ -1,20 +1,20 @@
 <updates>
  <update>
     <name>Bundesliga-Tabelle</name>
-    <description>Bundesliga-Tabellen Modul Version 2.1.0 für Joomla 6</description>
+    <description>Bundesliga-Tabellen Modul Version 2.1.5 für Joomla 6</description>
     <element>mod_bulitabelle</element>
     <type>module</type>
 	<client>0</client>
-    <version>2.1.0</version>
-    <infourl title="Bundesliga Module für Joomla!">http://www.jbuli.de/</infourl>
+    <version>2.1.5</version>
+    <infourl title="Bundesliga Module für Joomla!">http://www.krupphome.de.de/</infourl>
     <downloads>
-        <downloadurl type="full" format="zip">http://www.jbuli.de/mod_bulitabelle.zip</downloadurl>
+        <downloadurl type="full" format="zip">http://www.krupphome.de.de/mod_bulitabelle.zip</downloadurl>
     </downloads>
     <tags>
         <tag>stable</tag>
     </tags>
     <maintainer>Markus Krupp</maintainer>
-    <maintainerurl>http://www.jbuli.de/</maintainerurl>
+    <maintainerurl>http://www.krupphome.de.de/</maintainerurl>
     <targetplatform name="joomla" version="6.*"/>
  </update>
 </updates>

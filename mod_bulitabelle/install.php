@@ -69,7 +69,7 @@ class mod_bulitabelleInstallerScript
     public function uninstall($adapter)
     {
         $db = JFactory::getContainer()->get(DatabaseInterface::class);
-        $query = 'DROP TABLE '.$db->quoteName('#__bulitabelle');
+        $query = 'DROP TABLE IF EXISTS '.$db->quoteName('#__bulitabelle');
 
         $db->setQuery($query);
         $db->execute();
@@ -111,8 +111,8 @@ class mod_bulitabelleInstallerScript
         }
 
         $cachefile = JPATH_BASE."/../modules/mod_bulitabelle/cache.txt";
-        if (is_readable($cachefile)) {
-            unlink($cachefile);
+        if (is_file($cachefile)) {
+            @unlink($cachefile);
         }
     }
 }

@@ -3,7 +3,6 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\Registry\Registry as JRegistry;
 use Joomla\CMS\Uri\Uri as JURI;
-use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
 use Joomla\Database\DatabaseInterface;
 /**
  * helper.php - (c) Markus Krupp
@@ -23,8 +22,10 @@ class modBulitabelleHelper
 
         $app = JFactory::getApplication();
         $document = $app->getDocument();
+        $activeMenu = $app->getMenu()->getActive();
+        $itemId = $activeMenu ? (int) $activeMenu->id : 0;
         $document->addStyleDeclaration(
-            '#bulitabelle_' . (int) $module->id . ' { width:100%; max-width:none; overflow-x:auto; container-type:inline-size; }'
+            '#bulitabelle_' . (int) $module->id . ' { width:100%; max-width:none; overflow-x:hidden; }'
             . '#bulitabelle_' . (int) $module->id . ' table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }'
             . '#bulitabelle_' . (int) $module->id . ' th,'
             . '#bulitabelle_' . (int) $module->id . ' td { vertical-align:middle; white-space:nowrap; padding:5px 6px; }'
@@ -33,26 +34,44 @@ class modBulitabelleHelper
             . '#bulitabelle_' . (int) $module->id . ' tbody tr:hover { background:rgba(127,127,127,.08); }'
             . '#bulitabelle_' . (int) $module->id . ' .jbuli-logo { width:32px; min-width:32px; padding-left:2px; padding-right:6px; }'
             . '#bulitabelle_' . (int) $module->id . ' .jbuli-logo img { display:block; width:20px; height:20px; object-fit:contain; }'
-            . '#bulitabelle_' . (int) $module->id . ' .jbuli-team { width:100%; white-space:normal; text-align:left !important; padding-right:12px; }'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-team { width:100%; min-width:88px; white-space:normal; text-align:left !important; padding-right:12px; }'
             . '#bulitabelle_' . (int) $module->id . ' .jbuli-points { font-weight:900; color:#c40018; text-align:center; }'
-            . '#bulitabelle_' . (int) $module->id . ' .jbuli-compact { display:none; }'
-            . '@container (max-width:620px) {'
-            . '#bulitabelle_' . (int) $module->id . ' .jbuli-optional { display:none; }'
-            . '#bulitabelle_' . (int) $module->id . ' .jbuli-compact { display:table-cell; }'
-            . '#bulitabelle_' . (int) $module->id . ' th,'
-            . '#bulitabelle_' . (int) $module->id . ' td { font-size:0.88rem; padding-left:4px; padding-right:4px; }'
-            . '}'
-            . '@container (max-width:500px) {'
-            . '#bulitabelle_' . (int) $module->id . ' .jbuli-form,'
-            . '#bulitabelle_' . (int) $module->id . ' .jbuli-compact { display:none !important; }'
-            . '#bulitabelle_' . (int) $module->id . ' .jbuli-team { padding-right:6px; }'
-            . '}'
+            . '#bulitabelle_' . (int) $module->id . ' .jbuli-column-hidden { display:none !important; }'
+            . '#bulitabelle_' . (int) $module->id . ' th:last-child,'
+            . '#bulitabelle_' . (int) $module->id . ' td:last-child { padding-right:10px; }'
+            . '#bulitabelle_' . (int) $module->id . ' tr.jbuli-zone-separator { border-bottom:2px solid rgba(100,100,100,.75); }'
         );
 
         $document->addScriptDeclaration('
       jQuery(document).ready(function() {
         load_bulitabelle_' . $module->id . '();
+        var container = document.getElementById("bulitabelle_' . $module->id . '");
+        if (container && window.ResizeObserver) {
+          new ResizeObserver(function() {
+            window.requestAnimationFrame(fit_bulitabelle_' . $module->id . ');
+          }).observe(container);
+        } else {
+          jQuery(window).on("resize.bulitabelle_' . $module->id . '", fit_bulitabelle_' . $module->id . ');
+        }
       });
+
+      function fit_bulitabelle_' . $module->id . '() {
+        var container = document.getElementById("bulitabelle_' . $module->id . '");
+        var table = container ? container.querySelector(".jbuli-standings") : null;
+        if (!container || !table) { return; }
+
+        table.querySelectorAll(".jbuli-responsive-column").forEach(function(cell) {
+          cell.classList.remove("jbuli-column-hidden");
+        });
+
+        var priorities = [".jbuli-form", ".jbuli-goals", ".jbuli-diff", ".jbuli-played"];
+        priorities.forEach(function(selector) {
+          if (table.scrollWidth <= container.clientWidth + 1) { return; }
+          table.querySelectorAll(selector).forEach(function(cell) {
+            cell.classList.add("jbuli-column-hidden");
+          });
+        });
+      }
         
       function load_bulitabelle_' . $module->id . '() {
         jQuery("#bulitabelle_loading_' . $module->id . '").show();
@@ -60,10 +79,10 @@ class modBulitabelleHelper
             {
               option: "com_ajax",
               module: "bulitabelle",
-              Itemid: "' . $app->getMenu()->getActive()->id . '",
+              Itemid: "' . $itemId . '",
               method: "getTabelle",
               format: "json",
-              titel: "' . $module->title . '"
+              module_id: "' . (int) $module->id . '"
             },
             function(data){
               jQuery("#bulitabelle_loading_' . $module->id . '").hide();
@@ -71,6 +90,7 @@ class modBulitabelleHelper
                 jQuery("#bulitabelle_' . $module->id . '").html(data.message);
               } else {
                 jQuery("#bulitabelle_' . $module->id . '").html(data.data);
+                fit_bulitabelle_' . $module->id . '();
               }
             }
         ).fail(function(xhr) {
@@ -86,6 +106,7 @@ class modBulitabelleHelper
             jQuery("#bulitabelle_' . $module->id . '").html(data.message);
           } else {
             jQuery("#bulitabelle_' . $module->id . '").html(data.data);
+            fit_bulitabelle_' . $module->id . '();
           }
         });
       };
@@ -108,7 +129,6 @@ class modBulitabelleHelper
             curl_setopt($curl, CURLOPT_USERAGENT, 'Joomla/6 mod_bulitabelle');
             $content = curl_exec($curl);
             $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-            curl_close($curl);
             return $content !== false && $status >= 200 && $status < 300 ? $content : false;
         } elseif (ini_get('allow_url_fopen')) {
             $context = stream_context_create([
@@ -145,15 +165,22 @@ class modBulitabelleHelper
     public static function getTabelleAjax()
     {
         $jinput = JFactory::getApplication()->input;
-        $module = JModuleHelper::getModule('bulitabelle', $jinput->get('titel', 'default_value', 'filter'));
         $db = JFactory::getContainer()->get(DatabaseInterface::class);
+        $moduleId = $jinput->getInt('module_id');
+        $query = $db->getQuery(true)
+            ->select($db->quoteName(['id', 'title', 'module', 'params']))
+            ->from($db->quoteName('#__modules'))
+            ->where($db->quoteName('id') . ' = ' . $moduleId)
+            ->where($db->quoteName('module') . ' = ' . $db->quote('mod_bulitabelle'))
+            ->where($db->quoteName('client_id') . ' = 0')
+            ->where($db->quoteName('published') . ' = 1');
+        $module = $db->setQuery($query)->loadObject();
+        if (!$module) {
+            throw new RuntimeException('Das Tabellen-Modul wurde nicht gefunden.');
+        }
 
         $jparams = new JRegistry();
         $jparams->loadString($module->params);
-
-        $context = stream_context_create([
-      'http' => [ 'timeout' => $jparams->get('timeout') ]
-    ]);
 
         $liga = $jparams->get('league');
 
@@ -174,8 +201,10 @@ class modBulitabelleHelper
                 $spieltag = 1;
             }
         } else {
-            $spieltag = self::decodeApiResponse($spieltag);
-            $spieltag = $spieltag->GroupOrderID;
+            $currentGroup = self::decodeApiResponse($spieltag);
+            $spieltag = is_object($currentGroup) && isset($currentGroup->GroupOrderID)
+                ? (int) $currentGroup->GroupOrderID
+                : (int) $jparams->get('lastCurrentMatchday', 1);
 
             // Nicht mehr über die in Joomla 6 entfernte JTable-Modul-API speichern.
         }
@@ -186,16 +215,22 @@ class modBulitabelleHelper
 
             if ($paarungen != false && stristr($paarungen, 'Maximale Abfrageanzahl von 1000 Abfragen pro Tag erreicht!') == false && stristr($paarungen, 'An error has occurred') == false) {
                 $paarungen = self::decodeApiResponse($paarungen);
+                if (!is_array($paarungen)) {
+                    $paarungen = [];
+                }
                 $tabelle = [];
                 $i = 0;
                 foreach ($paarungen as $partie) {
+                    if (!is_object($partie) || !isset($partie->Team1->TeamName, $partie->Team2->TeamName)) {
+                        continue;
+                    }
                     $i++;
-                    $alle_ergebnisse = $partie->MatchResults;
+                    $alle_ergebnisse = is_array($partie->MatchResults ?? null) ? $partie->MatchResults : [];
                     if (isset($alle_ergebnisse[0]) && $alle_ergebnisse[0] instanceof stdClass) {
                         $tore_team1 = null;
                         $tore_team2 = null;
                         foreach ($alle_ergebnisse as $ergebnis) {
-                            if ($ergebnis->ResultName == 'Endergebnis') {
+                            if (($ergebnis->ResultName ?? '') == 'Endergebnis' && isset($ergebnis->PointsTeam1, $ergebnis->PointsTeam2)) {
                                 $tore_team1 = $ergebnis->PointsTeam1;
                                 $tore_team2 = $ergebnis->PointsTeam2;
 
@@ -276,63 +311,76 @@ class modBulitabelleHelper
         }
 
         // Live Spiele laden
+        $liveteams = [];
         if ($jparams->get('live') == '1') {
 
       // Paarungen abrufen
             $saison = $jparams->get('season');
 
             // Cache lesen
+            $cache = '';
             $cachefile = JPATH_BASE."/modules/mod_bulitabelle/cache.txt";
             if (is_readable($cachefile)) {
                 $cache = file_get_contents($cachefile);
             } else {
-                $timeout = stream_context_create([
-          'http' => [ 'timeout' => 10 ]
-        ]);
-
-                $cache = self::fetchdata('http://www.jbuli.de/modules/mod_bulitabelle/cache.txt', $jparams->get('timeout'));
+                $cache = self::fetchdata('https://www.jbuli.de/modules/mod_bulitabelle/cache.txt', $jparams->get('timeout'));
 
                 if ($cache != false) {
-                    file_put_contents($cachefile, $cache);
+                    self::writeCacheAtomically($cachefile, $cache);
                 }
             }
-            $paarungen_cache = unserialize($cache);
+            $paarungen_cache = [];
+            if (is_string($cache) && $cache !== '') {
+                $decodedCache = @unserialize($cache, ['allowed_classes' => [stdClass::class]]);
+                if (is_array($decodedCache)) {
+                    $paarungen_cache = $decodedCache;
+                }
+            }
+            $cacheKey = $spieltag . $liga . $saison;
+            $paarungen = [];
 
             // Letzte Änderung ermitteln
             $lastchange = self::fetchdata('https://www.openligadb.de/api/getlastchangedate/' . $liga . '/' . $saison . '/' . $spieltag, $jparams->get('timeout'));
 
             if ($lastchange === false) {
                 // Kein Datum vom Webservice -> Datum aus dem Cache holen
-                if ($paarungen_cache[$spieltag . $liga . $saison]) {
-                    $lastchange = array_keys($paarungen_cache[$spieltag . $liga . $saison]);
-                    $lastchange = $lastchange[0];
+                if (!empty($paarungen_cache[$cacheKey]) && is_array($paarungen_cache[$cacheKey])) {
+                    $lastchange = array_key_first($paarungen_cache[$cacheKey]);
+                } else {
+                    $lastchange = 0;
                 }
             } else {
-                $lastchange = strtotime(json_decode($lastchange));
+                $decodedLastChange = json_decode($lastchange);
+                $lastchange = is_string($decodedLastChange) ? (strtotime($decodedLastChange) ?: 0) : 0;
             }
 
             // Spieltag mit diesem Stand schon im Cache?
-            if ($paarungen_cache[$spieltag . $liga . $saison][$lastchange]) {
-                $paarungen = $paarungen_cache[$spieltag . $liga . $saison][$lastchange];
+            if (isset($paarungen_cache[$cacheKey][$lastchange])) {
+                $paarungen = $paarungen_cache[$cacheKey][$lastchange];
             } else {
                 // Daten abrufen und in den Cache schreiben
                 $paarungen = self::fetchdata('https://www.openligadb.de/api/getmatchdata/' . $liga . '/' . $saison . '/' . $spieltag, $jparams->get('timeout'));
 
                 if ($paarungen != false && stristr($paarungen, 'Maximale Abfrageanzahl von 1000 Abfragen pro Tag erreicht!') == false) {
-                    $paarungen = self::decodeApiResponse($paarungen);
-                    unset($paarungen_cache[$spieltag . $liga . $saison]);
-                    $paarungen_cache[$spieltag . $liga . $saison][$lastchange] = $paarungen;
-                    file_put_contents($cachefile, serialize($paarungen_cache));
+                    $decodedResponse = self::decodeApiResponse($paarungen);
+                    $paarungen = is_array($decodedResponse) ? $decodedResponse : [];
+                    if ($paarungen !== []) {
+                        unset($paarungen_cache[$cacheKey]);
+                        $paarungen_cache[$cacheKey][$lastchange] = $paarungen;
+                        self::writeCacheAtomically($cachefile, serialize($paarungen_cache));
+                    }
                 }
             }
 
             // LIVE Spiele ermitteln
-            $liveteams = [];
-            foreach ($paarungen as $partie) {
+            foreach ((array) $paarungen as $partie) {
+                if (!is_object($partie) || !isset($partie->Team1->TeamName, $partie->Team2->TeamName)) {
+                    continue;
+                }
                 if (isset($partie->MatchResults[0])) {
                     $ergebnisse = $partie->MatchResults[0];
                     if ($ergebnisse instanceof stdClass) {
-                        if ($partie->MatchIsFinished == false) {
+                        if (!($partie->MatchIsFinished ?? true)) {
                             $liveteams[] = $partie->Team1->TeamName;
                             $liveteams[] = $partie->Team2->TeamName;
                         }
@@ -410,18 +458,19 @@ class modBulitabelleHelper
         $style = 'text-align:right; vertical-align:middle; margin-right:2px;';
         $htmloutput = '<table class="jbuli-standings"><thead><tr>'
             . '<th style="'.$style.'">Pl.</th><th aria-label="Logo"></th><th style="text-align:left;">Team</th>'
-            . '<th style="'.$style.'">Sp.</th>'
-            . '<th class="jbuli-form" style="'.$style.'">G</th>'
-            . '<th class="jbuli-form" style="'.$style.'">U</th>'
-            . '<th class="jbuli-form" style="'.$style.'">V</th>'
-            . '<th class="jbuli-optional" style="'.$style.'">T</th>'
-            . '<th class="jbuli-optional" style="'.$style.'">GT</th>'
-            . '<th class="jbuli-optional" style="'.$style.'">Diff.</th>'
-            . '<th class="jbuli-compact" style="'.$style.'">Tore</th>'
+            . '<th class="jbuli-played jbuli-responsive-column" style="'.$style.'">Sp.</th>'
+            . '<th class="jbuli-form jbuli-responsive-column" style="'.$style.'">G</th>'
+            . '<th class="jbuli-form jbuli-responsive-column" style="'.$style.'">U</th>'
+            . '<th class="jbuli-form jbuli-responsive-column" style="'.$style.'">V</th>'
+            . '<th class="jbuli-goals jbuli-responsive-column" style="'.$style.'">Tore</th>'
+            . '<th class="jbuli-diff jbuli-responsive-column" style="'.$style.'">Diff.</th>'
             . '<th style="'.$style.'">Pkt</th></tr></thead><tbody>';
 
+        $previousRankKey = null;
         foreach ($tabelle as $row) {
             $diff = (int) $row['tore'] - (int) $row['gegentore'];
+            $rankKey = (int) $row['punkte'] . ':' . $diff . ':' . (int) $row['tore'];
+            $displayPlace = $rankKey === $previousRankKey ? '' : (string) $platz;
 
             if ($jparams->get('live') == '1' && in_array($row['team'], $liveteams)) {
                 $tdstyle = 'text-align:right; color:red; vertical-align:middle; margin-right:2px;';
@@ -435,10 +484,8 @@ class modBulitabelleHelper
                 $trstyle = '';
             }
 
-            if ($jparams->get('league') == 'bl1' && ($platz == 1 || $platz == 4 || $platz == 5 || $platz ==  6 || $platz == 15 || $platz == 16) ||
-        $jparams->get('league') == 'bl2' && ($platz == 2 || $platz == 3 || $platz ==  15 || $platz == 16)) {
-                $tdstyle .= ' border-bottom: 1px solid #A6A6A6;';
-            }
+            $zoneSeparator = ($jparams->get('league') == 'bl1' && in_array($platz, [1, 4, 5, 6, 15, 16], true))
+                || ($jparams->get('league') == 'bl2' && in_array($platz, [2, 3, 15, 16], true));
 
             $displayName = $jparams->get('longnames') == '1'
                 ? $row['team']
@@ -452,25 +499,34 @@ class modBulitabelleHelper
             } elseif ($logoName === 'Münster') {
                 $logo = 'muenster.svg';
             }
-            $htmloutput .= '<tr style="' . $trstyle . '">'
-                . '<td style="'.$tdstyle.'"><b>' .$platz . '&nbsp;</b></td>'
+            $htmloutput .= '<tr class="' . ($zoneSeparator ? 'jbuli-zone-separator' : '') . '" style="' . $trstyle . '">'
+                . '<td style="'.$tdstyle.'"><b>' . ($displayPlace === '' ? '&nbsp;' : $displayPlace . '&nbsp;') . '</b></td>'
                 . '<td class="jbuli-logo"><img loading="lazy" title="'.htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8').'" alt="" src="'.JURI::root().'modules/mod_bulitabelle/images/' . rawurlencode($logo) . '"></td>'
                 . '<td class="jbuli-team" style="'.$tdstyle.'">' . htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') . '</td>'
-                . '<td style="'.$tdstyle.'">' . (int) $row['spiele'] . '</td>'
-                . '<td class="jbuli-form" style="'.$tdstyle.'">' . (int) $row['gewonnen'] . '</td>'
-                . '<td class="jbuli-form" style="'.$tdstyle.'">' . (int) $row['unentschieden'] . '</td>'
-                . '<td class="jbuli-form" style="'.$tdstyle.'">' . (int) $row['verloren'] . '</td>'
-                . '<td class="jbuli-optional" style="'.$tdstyle.'">' . (int) $row['tore'] . '</td>'
-                . '<td class="jbuli-optional" style="'.$tdstyle.'">' . (int) $row['gegentore'] . '</td>'
-                . '<td class="jbuli-optional" style="'.$tdstyle.'">' . $diff . '</td>'
-                . '<td class="jbuli-compact" style="'.$tdstyle.'">' . (int) $row['tore'] . ':' . (int) $row['gegentore'] . '</td>'
+                . '<td class="jbuli-played jbuli-responsive-column" style="'.$tdstyle.'">' . (int) $row['spiele'] . '</td>'
+                . '<td class="jbuli-form jbuli-responsive-column" style="'.$tdstyle.'">' . (int) $row['gewonnen'] . '</td>'
+                . '<td class="jbuli-form jbuli-responsive-column" style="'.$tdstyle.'">' . (int) $row['unentschieden'] . '</td>'
+                . '<td class="jbuli-form jbuli-responsive-column" style="'.$tdstyle.'">' . (int) $row['verloren'] . '</td>'
+                . '<td class="jbuli-goals jbuli-responsive-column" style="'.$tdstyle.'">' . (int) $row['tore'] . ':' . (int) $row['gegentore'] . '</td>'
+                . '<td class="jbuli-diff jbuli-responsive-column" style="'.$tdstyle.'">' . $diff . '</td>'
                 . '<td class="jbuli-points" style="'.$tdstyle.';font-weight:900;color:#c40018;text-align:center;">' . (int) $row['punkte'] . '</td></tr>';
 
+            $previousRankKey = $rankKey;
             $platz++;
         }
 
         $htmloutput .= '</tbody></table>';
 
         return $htmloutput;
+    }
+
+    private static function writeCacheAtomically(string $cachefile, string $content): void
+    {
+        $temporaryFile = $cachefile . '.' . bin2hex(random_bytes(6)) . '.tmp';
+        if (@file_put_contents($temporaryFile, $content, LOCK_EX) !== false) {
+            if (!@rename($temporaryFile, $cachefile)) {
+                @unlink($temporaryFile);
+            }
+        }
     }
 }

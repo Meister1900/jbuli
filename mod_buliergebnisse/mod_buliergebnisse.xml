@@ -7,7 +7,7 @@
 	<license>GNU/GPL</license>
 	<authorEmail>webmaster@krupphome.de</authorEmail>
 	<authorUrl>www.jbuli.de</authorUrl>
-	<version>2.1.2</version>
+	<version>2.1.5</version>
 	<description>Bundesliga Ergebnisse für Joomla</description>
   <scriptfile>install.php</scriptfile>
 	<files>
@@ -32,8 +32,7 @@
 				<field name="matchday" type="number" default="0" label="Spieltag" description="Der standardmäßig anzuzeigende Spieltag. 0 zeigt automatisch den aktuellen Spieltag an, -1 den Vorherigen" />
 				<field name="timeout" type="number" default="3" label="Timeout" description="Sekunden, wie lange auf eine Antwort vom Webservice gewartet werden soll. Bei einem Timeout werden die Daten aus dem Cache geladen." />
 				<field name="timeout_error" type="textarea" cols="40" rows="3" default="Für diesen Spieltag können derzeit keine Daten vom Webservice abgerufen werden :-(" label="Fehlermeldung Timeout" description="Fehlermeldung die angezeigt wird, wenn ein Timeout auftritt und keine Daten im Cache sind." />
-				<field name="kompakt" type="radio" layout="joomla.form.field.radio.switcher" default="0" label="Kompaktansicht" description="In der Kompaktansicht werden die Partien nicht nach Anstosszeiten gruppiert"><option value="0">JNO</option><option value="1">JYES</option></field>
-				<field name="longnames" type="radio" layout="joomla.form.field.radio.switcher" default="0" label="Lange Vereinsnamen?" description="Offizielle vollständige Vereinsnamen anzeigen?"><option value="0">JNO</option><option value="1">JYES</option></field>
+				<field name="nameformat" type="list" default="medium" label="Vereinsnamen" description="Darstellung der Vereinsnamen; Kurz verwendet Kürzel und die kompakte Terminansicht"><option value="long">Lang (offizieller Name)</option><option value="medium">Mittel (z. B. Gladbach)</option><option value="short">Kurz (z. B. BMG)</option></field>
 				<field name="meinVerein" type="list" default="" label="Verein hervorheben" description="Verein auswählen, der hervorgehoben werden soll">
 					<option value="">Keinen</option>
 					<option value="1. FC Heidenheim 1846">1. FC Heidenheim 1846</option>
