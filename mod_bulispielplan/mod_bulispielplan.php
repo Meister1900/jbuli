@@ -1,4 +1,10 @@
 <?php
+/**
+ * @package     JBuli
+ * @copyright   (C) 2014-2026 Markus Krupp
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
 /**
  * helper.php - (c) Markus Krupp
@@ -16,7 +22,7 @@ use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
     $strHTMLOutput = '';
     try {
         $ergebnisse = new modBulispielplanHelper($module, $params);
-        $strHTMLOutput = "\r\n<!-- Bundesliga-Spielplan 2.1.20 - (c) Markus Krupp - https://www.krupphome.de/-->\r\n";
+        $strHTMLOutput = "\r\n<!-- Bundesliga-Spielplan 2.1.21 - (c) Markus Krupp - https://www.krupphome.de/-->\r\n";
         $strHTMLOutput .= '<div id="bulispielplan_' . $module->id . '"><span id="bulispielplan_loading_' . $module->id . '" class="jbuli-loader" role="status" aria-label="Wird geladen" style="display:block; margin:12px auto;"></span></div>';
     } catch (Throwable $e) {
         $strHTMLOutput = '<div class="alert alert-warning">'

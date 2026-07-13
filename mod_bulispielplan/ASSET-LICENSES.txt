@@ -1,0 +1,13 @@
+JBuli Bundesliga-Spielplan – third-party assets
+
+The program code is licensed under the GNU General Public License version 2 or later.
+
+Club badges, competition marks and other supplied image assets may be protected
+by trademark, copyright or related rights of their respective owners. They are
+included solely to identify clubs and competitions in the module. They are not
+licensed under the GPL by this package, and no permission beyond applicable law
+or the rights holder's terms is granted here.
+
+Where a local badge is unavailable, the module may use the TeamIconUrl supplied
+by the OpenLigaDB API at runtime. OpenLigaDB data and any remote asset remain
+subject to their respective terms.
