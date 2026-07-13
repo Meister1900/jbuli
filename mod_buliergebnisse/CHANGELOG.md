@@ -1,3 +1,4 @@
+ * 2.1.14 - CSS und JavaScript in cachefähige Moduldateien ausgelagert
  * 2.1.13 - JED-konforme GPL-Hinweise, Paketlizenz und Bildrechtehinweise ergänzt
  * 2.1.12 - Update-Metadaten vollständig auf GitHub Raw umgestellt
  * 2.1.11 - Automatischer zweiter API-Versuch bei kaltem Spieltags-Cache

@@ -1,16 +1,16 @@
 <updates>
  <update>
     <name>Bundesliga-Ergebnisse</name>
-    <description>Bundesliga-Ergebnis Modul Version 2.1.13 für Joomla 6</description>
+    <description>Bundesliga-Ergebnis Modul Version 2.1.14 für Joomla 6</description>
     <element>mod_buliergebnisse</element>
     <type>module</type>
 	<client>0</client>
-    <version>2.1.13</version>
+    <version>2.1.14</version>
     <infourl title="Bundesliga Module für Joomla!">https://www.krupphome.de/</infourl>
     <downloads>
         <downloadurl type="full" format="zip">https://raw.githubusercontent.com/Meister1900/jbuli/master/mod_buliergebnisse/mod_buliergebnisse.zip</downloadurl>
     </downloads>
-    <sha256>ec1275e68cdf07fa75f7e9ec7b232381f0a2959bc3827c77f65f83acc27e4c8f</sha256>
+    <sha256>c24b0e5cbf163bb9f227ab339d77324fbc1ff2080fc9628f91b921a5e9d84469</sha256>
     <tags>
         <tag>stable</tag>
     </tags>

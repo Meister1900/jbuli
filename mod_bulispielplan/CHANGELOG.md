@@ -1,3 +1,4 @@
+ * 2.1.22 - CSS und JavaScript in cachefähige Moduldateien ausgelagert; Dropdown-Hintergrund wiederhergestellt
  * 2.1.21 - JED-konforme GPL-Hinweise, Paketlizenz und Bildrechtehinweise ergänzt
  * 2.1.20 - Automatisches Scrollen der gesamten Seite nach AJAX-Ladevorgängen entfernt
  * 2.1.19 - Update-Metadaten vollständig auf GitHub Raw umgestellt

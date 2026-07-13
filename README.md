@@ -3,9 +3,9 @@ Responsive Fußball-Ergebnisse, Spielpläne und Tabellen für Joomla 6. Die Spie
 
 ## Aktuelle Versionen
 
-- Ergebnismodul `2.1.12`
-- Spielplanmodul `2.1.20`
-- Tabellenmodul `2.1.9`
+- Ergebnismodul `2.1.14`
+- Spielplanmodul `2.1.22`
+- Tabellenmodul `2.1.11`
 
 ## Voraussetzungen und Installation
 
