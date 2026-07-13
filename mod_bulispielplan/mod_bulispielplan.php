@@ -6,6 +6,8 @@
  */
 
 use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\Uri\Uri as JURI;
 /**
  * helper.php - (c) Markus Krupp
  * Die Daten werden vom Webservice openligadb.de bereitgestellt.
@@ -23,7 +25,10 @@ use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
     try {
         $ergebnisse = new modBulispielplanHelper($module, $params);
         $strHTMLOutput = "\r\n<!-- Bundesliga-Spielplan 2.1.21 - (c) Markus Krupp - https://www.krupphome.de/-->\r\n";
-        $strHTMLOutput .= '<div id="bulispielplan_' . $module->id . '"><span id="bulispielplan_loading_' . $module->id . '" class="jbuli-loader" role="status" aria-label="Wird geladen" style="display:block; margin:12px auto;"></span></div>';
+        $activeMenu = JFactory::getApplication()->getMenu()->getActive();
+        $itemId = $activeMenu ? (int) $activeMenu->id : 0;
+        $endpoint = htmlspecialchars(JURI::base() . 'index.php', ENT_QUOTES, 'UTF-8');
+        $strHTMLOutput .= '<div id="bulispielplan_' . (int) $module->id . '" class="jbuli-schedule-root" data-module-id="' . (int) $module->id . '" data-item-id="' . $itemId . '" data-endpoint="' . $endpoint . '"><span id="bulispielplan_loading_' . (int) $module->id . '" class="jbuli-loader jbuli-loader-initial" role="status" aria-label="Wird geladen"></span></div>';
     } catch (Throwable $e) {
         $strHTMLOutput = '<div class="alert alert-warning">'
             . htmlspecialchars((string) $params->get('timeout_error', 'Der Spielplan konnte nicht geladen werden.'), ENT_QUOTES, 'UTF-8')

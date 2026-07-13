@@ -30,10 +30,10 @@ class modBulitabelleHelper
         // Load JQuery
         JHtml::_('jquery.framework');
 
-        $app = JFactory::getApplication();
-        $document = $app->getDocument();
-        $activeMenu = $app->getMenu()->getActive();
-        $itemId = $activeMenu ? (int) $activeMenu->id : 0;
+        $assets = JFactory::getApplication()->getDocument()->getWebAssetManager();
+        $assets->registerAndUseStyle('mod_bulitabelle.styles', 'modules/mod_bulitabelle/media/css/module.css', ['version' => 'auto']);
+        $assets->registerAndUseScript('mod_bulitabelle.script', 'modules/mod_bulitabelle/media/js/module.js', ['version' => 'auto'], ['defer' => true]);
+        /*
         $document->addStyleDeclaration(
             '#bulitabelle_' . (int) $module->id . ' { width:100%; max-width:none; overflow-x:hidden; }'
                 . '#bulitabelle_' . (int) $module->id . ' .jbuli-loader { display:inline-block; width:22px; height:22px; box-sizing:border-box; border:3px solid currentColor; border-right-color:transparent; border-radius:50%; opacity:.72; vertical-align:middle; animation:jbuli-spin .72s linear infinite; }'
@@ -124,6 +124,7 @@ class modBulitabelleHelper
         });
       };
     ');
+        */
     }
 
     /**

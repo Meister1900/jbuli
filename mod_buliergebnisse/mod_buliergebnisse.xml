@@ -16,6 +16,7 @@
 		<folder>images</folder>
 		<filename>index.html</filename>
 		<filename>helper.php</filename>
+		<folder>media</folder>
 		<folder>src</folder>
 		<filename>tmpl/default.php</filename>
 	</files>

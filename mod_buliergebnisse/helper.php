@@ -29,39 +29,10 @@ class modBuliergebnisseHelper
         // Load Bootstrap and JQuery
         JHtml::_('bootstrap.framework');
 
-        $app = JFactory::getApplication();
-        $document = $app->getDocument();
-        $activeMenu = $app->getMenu()->getActive();
-        $itemId = $activeMenu ? (int) $activeMenu->id : 0;
-        $document->addStyleDeclaration(
-            '#spielplan_' . (int) $module->id . ' { width:100%; max-width:none; container-type:inline-size; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-loader { display:inline-block; width:22px; height:22px; box-sizing:border-box; border:3px solid currentColor; border-right-color:transparent; border-radius:50%; opacity:.72; vertical-align:middle; animation:jbuli-spin .72s linear infinite; }'
-                . '@keyframes jbuli-spin { to { transform:rotate(360deg); } }'
-                . '@media (prefers-reduced-motion:reduce) { #spielplan_' . (int) $module->id . ' .jbuli-loader { animation-duration:1.6s; } }'
-                . '#spielplan_' . (int) $module->id . ' table { width:100%; border-collapse:collapse; }'
-                . '#spielplan_' . (int) $module->id . ' td { vertical-align:middle; padding:4px 5px; }'
-                . '#spielplan_' . (int) $module->id . ' select { width:auto !important; min-width:58px; max-width:100%; min-height:36px; padding:5px 30px 5px 9px; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'%3E%3Cpath d=\'M1 1.5 6 6.5 11 1.5\' fill=\'none\' stroke=\'%23555\' stroke-width=\'1.6\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:12px 8px; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-match { border-bottom:1px solid rgba(127,127,127,.22); transition:background-color .15s ease; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-match:hover { background:rgba(127,127,127,.10); }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-logo { width:28px; min-width:28px; padding-left:2px; padding-right:6px; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-logo img { display:block; width:20px; height:20px; object-fit:contain; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-team { width:42%; overflow-wrap:anywhere; hyphens:auto; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-separator { width:14px; min-width:14px; padding-left:1px; padding-right:1px; text-align:center; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-result { width:58px; min-width:58px; text-align:right; white-space:nowrap; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-date { width:34px; min-width:34px; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-goal-tooltip { cursor:pointer; outline-offset:2px; border-bottom:1px dotted currentColor; }'
-                . '#jbuli-goal-popover_' . (int) $module->id . ' { position:fixed; z-index:2147483647; display:none; min-width:190px; max-width:min(320px,calc(100vw - 16px)); padding:10px 12px; border:1px solid rgba(255,255,255,.16); border-radius:8px; background:#182126; color:#fff; box-shadow:0 8px 28px rgba(0,0,0,.32); font-size:.875rem; line-height:1.35; pointer-events:none; }'
-                . '#jbuli-goal-popover_' . (int) $module->id . '.is-visible { display:block; }'
-                . '#jbuli-goal-popover_' . (int) $module->id . ' .jbuli-tooltip-heading { margin:0 0 7px; color:#fff; font-weight:700; }'
-                . '#jbuli-goal-popover_' . (int) $module->id . ' .jbuli-tooltip-row { display:grid; grid-template-columns:2.6rem 1fr; gap:8px; padding:3px 0; }'
-                . '#jbuli-goal-popover_' . (int) $module->id . ' .jbuli-tooltip-score { color:#8ed1fc; font-weight:700; font-variant-numeric:tabular-nums; }'
-                . '@container (max-width:400px) {'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-match td { font-size:.93rem; padding-left:3px; padding-right:3px; }'
-                . '#spielplan_' . (int) $module->id . ' .jbuli-team { width:auto; }'
-                . '}'
-        );
-
-        $document->addScriptDeclaration('
+        $assets = JFactory::getApplication()->getDocument()->getWebAssetManager();
+        $assets->registerAndUseStyle('mod_buliergebnisse.styles', 'modules/mod_buliergebnisse/media/css/module.css', ['version' => 'auto']);
+        $assets->registerAndUseScript('mod_buliergebnisse.script', 'modules/mod_buliergebnisse/media/js/module.js', ['version' => 'auto'], ['defer' => true]);
+        /*
       jQuery(document).ready(function() {
         init_goal_tooltip_' . $module->id . '();
         change_spieltag_' . $module->id . '();
@@ -139,7 +110,7 @@ class modBuliergebnisseHelper
           }
        });
       };
-    ');
+    */
     }
 
     /**

@@ -6,6 +6,8 @@
  */
 
 use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\Uri\Uri as JURI;
 /**
  * mod_bulitabelle.php - (c) Markus Krupp
  * Die Daten werden vom Webservice openligadb bereitgestellt.
@@ -23,7 +25,10 @@ use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
   try {
       $tabelle = new modBulitabelleHelper($module);
       $strHTMLOutput = "\r\n<!-- Bundesliga-Tabelle 2.1.10 - (c) Markus Krupp - https://www.krupphome.de/-->\r\n";
-      $strHTMLOutput .= '<div id="bulitabelle_' . $module->id . '"><span id="bulitabelle_loading_' . $module->id . '" class="jbuli-loader" role="status" aria-label="Wird geladen" style="display:block; margin:12px auto;"></span></div>';
+      $activeMenu = JFactory::getApplication()->getMenu()->getActive();
+      $itemId = $activeMenu ? (int) $activeMenu->id : 0;
+      $endpoint = htmlspecialchars(JURI::base() . 'index.php', ENT_QUOTES, 'UTF-8');
+      $strHTMLOutput .= '<div id="bulitabelle_' . (int) $module->id . '" class="jbuli-standings-root" data-module-id="' . (int) $module->id . '" data-item-id="' . $itemId . '" data-endpoint="' . $endpoint . '"><span id="bulitabelle_loading_' . (int) $module->id . '" class="jbuli-loader jbuli-loader-initial" role="status" aria-label="Wird geladen"></span></div>';
   } catch (Throwable $e) {
       $strHTMLOutput = '<div class="alert alert-warning">Ein Fehler ist aufgetreten.</div>';
   }

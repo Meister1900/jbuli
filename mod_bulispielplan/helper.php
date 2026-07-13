@@ -23,11 +23,11 @@ class modBulispielplanHelper
     {
         JHtml::_('jquery.framework');
 
-        $app = JFactory::getApplication();
-        $document = $app->getDocument();
-        $activeMenu = $app->getMenu()->getActive();
-        $itemId = $activeMenu ? (int) $activeMenu->id : 0;
+        $assets = JFactory::getApplication()->getDocument()->getWebAssetManager();
+        $assets->registerAndUseStyle('mod_bulispielplan.styles', 'modules/mod_bulispielplan/media/css/module.css', ['version' => 'auto']);
+        $assets->registerAndUseScript('mod_bulispielplan.script', 'modules/mod_bulispielplan/media/js/module.js', ['version' => 'auto'], ['defer' => true]);
 
+        /*
         $style = '#bulispielplan_' . (int) $module->id . ' { width:100%; max-width:none; container-type:inline-size; }
               #bulispielplan_' . (int) $module->id . ' .jbuli-loader { display:inline-block; width:22px; height:22px; box-sizing:border-box; border:3px solid currentColor; border-right-color:transparent; border-radius:50%; opacity:.72; vertical-align:middle; animation:jbuli-spin .72s linear infinite; }
               @keyframes jbuli-spin { to { transform:rotate(360deg); } }
@@ -235,6 +235,7 @@ class modBulispielplanHelper
         fillButton(select.find("option:selected"));
       }
     ');
+        */
     }
 
     /**

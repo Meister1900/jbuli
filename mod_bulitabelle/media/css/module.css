@@ -1,0 +1,17 @@
+.jbuli-standings-root { width:100%; max-width:none; overflow-x:hidden; }
+.jbuli-standings-root .jbuli-loader { display:inline-block; width:22px; height:22px; box-sizing:border-box; border:3px solid currentColor; border-right-color:transparent; border-radius:50%; opacity:.72; vertical-align:middle; animation:jbuli-standings-spin .72s linear infinite; }
+.jbuli-standings-root .jbuli-loader-initial { display:block; margin:12px auto; }
+@keyframes jbuli-standings-spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .jbuli-standings-root .jbuli-loader { animation-duration:1.6s; } }
+.jbuli-standings-root table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.jbuli-standings-root th, .jbuli-standings-root td { vertical-align:middle; white-space:nowrap; padding:5px 6px; }
+.jbuli-standings-root thead th { font-weight:800; border-bottom:2px solid currentColor; padding-top:7px; padding-bottom:7px; }
+.jbuli-standings-root tbody tr { border-bottom:1px solid rgba(127,127,127,.3); }
+.jbuli-standings-root tbody tr:hover { background:rgba(127,127,127,.08); }
+.jbuli-standings-root .jbuli-logo { width:32px; min-width:32px; padding-left:2px; padding-right:6px; }
+.jbuli-standings-root .jbuli-logo img { display:block; width:20px; height:20px; object-fit:contain; }
+.jbuli-standings-root .jbuli-team { width:100%; min-width:88px; white-space:normal; text-align:left !important; padding-right:12px; }
+.jbuli-standings-root .jbuli-points { font-weight:900; color:#c40018; text-align:center; }
+.jbuli-standings-root .jbuli-column-hidden { display:none !important; }
+.jbuli-standings-root th:last-child, .jbuli-standings-root td:last-child { padding-right:10px; }
+.jbuli-standings-root tr.jbuli-zone-separator { border-bottom:2px solid rgba(100,100,100,.75); }

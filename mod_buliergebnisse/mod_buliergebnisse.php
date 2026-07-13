@@ -5,7 +5,9 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
+use Joomla\CMS\Uri\Uri as JURI;
 /**
  * mod_buliergebnisse.php - (c) Markus Krupp
  * Die Daten werden vom Webservice openligadb.de bereitgestellt
@@ -23,7 +25,10 @@ use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
     try {
         $ergebnisse = new modBuliergebnisseHelper($module);
         $strHTMLOutput = "\r\n<!-- Bundesliga-Ergebnisse 2.1.13 - (c) Markus Krupp - https://www.krupphome.de/-->\r\n";
-        $strHTMLOutput .= "<div id='spielplan_" . $module->id . "'><span id='buliergebnisse_loading_" . $module->id . "' class='jbuli-loader' role='status' aria-label='Wird geladen' style='display:block; margin:12px auto;'></span></div>\r\n";
+        $activeMenu = JFactory::getApplication()->getMenu()->getActive();
+        $itemId = $activeMenu ? (int) $activeMenu->id : 0;
+        $endpoint = htmlspecialchars(JURI::base() . 'index.php', ENT_QUOTES, 'UTF-8');
+        $strHTMLOutput .= "<div id='spielplan_" . (int) $module->id . "' class='jbuli-results-root' data-module-id='" . (int) $module->id . "' data-item-id='" . $itemId . "' data-endpoint='" . $endpoint . "'><span id='buliergebnisse_loading_" . (int) $module->id . "' class='jbuli-loader jbuli-loader-initial' role='status' aria-label='Wird geladen'></span></div>\r\n";
     } catch (Throwable $e) {
         $strHTMLOutput = '<div class="alert alert-warning">'
             . htmlspecialchars((string) $params->get('timeout_error', 'Die Ergebnisse konnten nicht geladen werden.'), ENT_QUOTES, 'UTF-8')
