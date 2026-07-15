@@ -6,6 +6,7 @@ Responsive Fußball-Ergebnisse, Spielpläne und Tabellen für Joomla 6. Die Spie
 - Ergebnismodul `2.1.14`
 - Spielplanmodul `2.1.22`
 - Tabellenmodul `2.1.11`
+- Torschützenmodul `1.0.14`
 
 ## Voraussetzungen und Installation
 
@@ -76,6 +77,22 @@ Features
 - Mit der aktuellen Joomla Version 6 und PHP 8 kompatibel
 - Garantiert werbefrei!
 
+## FUSSBALL-TORSCHÜTZENMODUL FÜR JOOMLA 6
+
+Joomla-Modul zur Anzeige der besten Torschützen einer OpenLigaDB-Liga und Saison.
+
+Features
+
+- Liga, Saison und Anzahl der Top-Torschützen im Backend einstellbar
+- Unterstützt 1. und 2. Bundesliga, Premier League, LaLiga, Serie A und Champions League
+- Zeigt Spieler, Toranzahl, Verein und Vereinslogo
+- Optionale lokale Spielerporträts anhand der OpenLigaDB-Spieler-ID
+- Eigene Spielerporträts lassen sich im Backend für einen aus OpenLigaDB gewählten Torschützen hochladen und werden automatisch nach dessen Spieler-ID benannt
+- Spielerporträts werden bei Hover oder Tastaturfokus vergrößert; moderne Initialen-Platzhalter bleiben statisch
+- Instanzbezogener Cache mit Fallback bei API-Ausfällen
+- Responsive Darstellung für breite und schmale Modulpositionen
+- Joomla 6 und PHP 8 kompatibel
+
 ## Lizenz
 
-GNU General Public License; siehe [LICENSE](LICENSE).
+Die Module stehen unter der GNU General Public License, Version 2 oder später; siehe [LICENSE](LICENSE). Die jeweiligen ZIP-Pakete enthalten eine Kopie der Lizenz. Vereinslogos und von Administratoren hochgeladene Spielerporträts sind davon ausgenommen; ihre Hinweise stehen in `ASSET-LICENSES.txt` im jeweiligen Paket.

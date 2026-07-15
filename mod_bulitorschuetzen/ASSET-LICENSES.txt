@@ -1,0 +1,13 @@
+JBuli Fußball-Torschützen – third-party assets
+
+The program code is licensed under the GNU General Public License version 2 or later.
+
+Club badges and competition marks may be protected by trademark, copyright or
+related rights of their respective owners. They are not licensed under the GPL
+by this package, and no permission beyond applicable law or the rights holder's
+terms is granted here.
+
+This package contains no player portraits. Site administrators can upload their
+own permitted portraits through the module settings and remain responsible for
+having the required rights. Where a local club badge is unavailable, the module
+may use the TeamIconUrl supplied by the OpenLigaDB API at runtime.

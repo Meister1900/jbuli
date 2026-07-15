@@ -1,0 +1,38 @@
+/*
+ * JBuli Fußball-Torschützen
+ * Copyright (C) 2026 Markus Krupp
+ * License: GNU General Public License version 2 or later; see LICENSE.txt.
+ */
+
+.jbuli-scorers { width:100%; max-width:none; container-type:inline-size; }
+.jbuli-scorers-loader { display:block; width:24px; height:24px; margin:14px auto; box-sizing:border-box; border:3px solid currentColor; border-right-color:transparent; border-radius:50%; opacity:.72; animation:jbuli-scorers-spin .72s linear infinite; }
+@keyframes jbuli-scorers-spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .jbuli-scorers-loader { animation-duration:1.6s; } }
+.jbuli-scorers-table-wrap { width:100%; overflow:visible; }
+.jbuli-scorers-table { width:100%; border-collapse:collapse; table-layout:fixed; font-variant-numeric:tabular-nums; }
+.jbuli-scorers-table th, .jbuli-scorers-table td { padding:7px 6px; vertical-align:middle; }
+.jbuli-scorers-table thead tr { border-bottom:2px solid currentColor; }
+.jbuli-scorers-table th { font-size:.78rem; text-align:left; text-transform:uppercase; letter-spacing:.025em; }
+.jbuli-scorers-row { border-bottom:1px solid rgba(127,127,127,.28); transition:background-color .15s ease; }
+.jbuli-scorers-row:last-child { border-bottom:0; }
+.jbuli-scorers-row:hover, .jbuli-scorers-row:focus-within { background:rgba(127,127,127,.11); }
+.jbuli-scorers-rank { width:2.4rem; text-align:center !important; font-weight:700; }
+.jbuli-scorers-goals { width:3.5rem; text-align:right !important; }
+.jbuli-scorers-goals strong { color:#d4142a; font-size:1.05em; }
+.jbuli-scorers-player { display:flex; align-items:center; min-width:0; gap:10px; }
+.jbuli-scorers-portrait { position:relative; z-index:1; display:inline-grid; flex:0 0 36px; width:36px; height:36px; place-items:center; border-radius:50%; outline-offset:3px; }
+.jbuli-scorers-portrait.has-photo { cursor:zoom-in; }
+.jbuli-scorers-portrait.is-placeholder { cursor:pointer; }
+.jbuli-scorers-portrait img, .jbuli-scorers-initials { display:grid; width:36px; height:36px; box-sizing:border-box; place-items:center; border-radius:50%; object-fit:cover; transition:transform .18s ease,box-shadow .18s ease; }
+.jbuli-scorers-portrait img { border:1px solid rgba(127,127,127,.35); box-shadow:0 1px 4px rgba(0,0,0,.12); }
+.jbuli-scorers-initials { border:1px solid rgba(127,127,127,.35); background:linear-gradient(145deg,rgba(127,127,127,.22),rgba(127,127,127,.07)); box-shadow:0 1px 4px rgba(0,0,0,.12); color:#495057; font-size:.72rem; font-weight:800; letter-spacing:.02em; }
+.jbuli-scorers-portrait.has-photo:hover, .jbuli-scorers-portrait.has-photo:focus, .jbuli-scorers-portrait.is-placeholder:hover, .jbuli-scorers-portrait.is-placeholder:focus { z-index:20; }
+.jbuli-scorers-portrait.has-photo:hover img, .jbuli-scorers-portrait.has-photo:focus img { transform:scale(2.35); box-shadow:0 8px 24px rgba(0,0,0,.35); }
+.jbuli-scorers-portrait.is-placeholder::after { position:absolute; top:calc(100% + 8px); left:50%; padding:5px 8px; border-radius:4px; background:#212529; color:#fff; content:attr(data-tooltip); font-size:.72rem; font-weight:600; line-height:1.2; opacity:0; pointer-events:none; transform:translate(-50%,-2px); transition:opacity .16s ease,transform .16s ease; white-space:nowrap; }
+.jbuli-scorers-portrait.is-placeholder:hover::after, .jbuli-scorers-portrait.is-placeholder:focus::after { opacity:1; transform:translate(-50%,0); }
+.jbuli-scorers-player-text { display:flex; min-width:0; flex-direction:column; line-height:1.22; }
+.jbuli-scorers-player-text strong, .jbuli-scorers-team { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.jbuli-scorers-team { display:flex; align-items:center; min-width:0; gap:5px; margin-top:3px; font-size:.78rem; opacity:.76; }
+.jbuli-scorers-team img { width:16px; height:16px; flex:0 0 16px; object-fit:contain; }
+@container (max-width:270px) { .jbuli-scorers-table th, .jbuli-scorers-table td { padding-left:3px; padding-right:3px; } .jbuli-scorers-player { gap:6px; } .jbuli-scorers-rank { width:2rem; } .jbuli-scorers-goals { width:3rem; } .jbuli-scorers-team { display:none; } }
+@media (prefers-reduced-motion:reduce) { .jbuli-scorers-portrait img, .jbuli-scorers-initials, .jbuli-scorers-row { transition:none; } }
