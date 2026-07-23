@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.15 – 24.07.2026
+
+- JED-Prüfung: ASCII-konformen Modulnamen im Manifest verwendet.
+- JED-Prüfung: GPL-Kopfzeilen für die mitgelieferten älteren Backend-Feldtypen ergänzt.
+
 ## 1.0.14 – 15.07.2026
 
 - Defekte Champions-League-Logo-URLs von OpenLigaDB durch lokale Projekt-Fallbacks für Arsenal, Atlético, Real Madrid, Paris Saint-Germain und Barcelona ergänzt.

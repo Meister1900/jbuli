@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @package     JBuli
+ * @copyright   (C) 2026 Markus Krupp
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Session\Session;

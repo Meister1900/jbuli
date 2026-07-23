@@ -6,7 +6,7 @@ Responsive Fußball-Ergebnisse, Spielpläne und Tabellen für Joomla 6. Die Spie
 - Ergebnismodul `2.1.14`
 - Spielplanmodul `2.1.22`
 - Tabellenmodul `2.1.11`
-- Torschützenmodul `1.0.14`
+- Torschützenmodul `1.0.15`
 
 ## Voraussetzungen und Installation
 
