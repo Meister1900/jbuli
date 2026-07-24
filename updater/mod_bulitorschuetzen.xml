@@ -1,16 +1,16 @@
 <updates>
  <update>
     <name>Fussball-Torschuetzen</name>
-    <description>Torschützen-Modul Version 1.0.15 für Joomla 6</description>
+    <description>Torschützen-Modul Version 1.0.16 für Joomla 6 – OpenLigaDB-Logos mit lokalem Ladefehler-Fallback</description>
     <element>mod_bulitorschuetzen</element>
     <type>module</type>
     <client>0</client>
-    <version>1.0.15</version>
+    <version>1.0.16</version>
     <infourl title="Bundesliga Module für Joomla!">https://www.krupphome.de/</infourl>
     <downloads>
         <downloadurl type="full" format="zip">https://raw.githubusercontent.com/Meister1900/jbuli/master/mod_bulitorschuetzen/mod_bulitorschuetzen.zip</downloadurl>
     </downloads>
-            <sha256>621dbd6e2de43d87a2fce71266f2ab0b919622ea99fd5825c02f445de992e2c2</sha256>
+            <sha256>69e1344ae68ca7d071fcd4c4814657b62b4401c693a6c4039f223d5aed85a5db</sha256>
     <tags><tag>stable</tag></tags>
     <maintainer>Markus Krupp</maintainer>
     <maintainerurl>https://www.krupphome.de/</maintainerurl>

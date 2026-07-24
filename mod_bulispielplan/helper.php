@@ -416,11 +416,17 @@ class modBulispielplanHelper
             if ($selected) {
                 $verein = $teamName;
             }
-            $logoUrl = !empty($team['dateiname_logo']) && !empty($team['logo_module'])
-                ? JURI::root() . 'modules/' . $team['logo_module'] . '/images/' . rawurlencode($team['dateiname_logo'])
-                : (string) ($team['team_icon_url'] ?? '');
+            $remoteLogoUrl = self::safeRemoteImageUrl((string) ($team['team_icon_url'] ?? ''));
+            $localLogoUrl = self::localLogoUrl(
+                (string) ($team['logo_module'] ?? ''),
+                (string) ($team['dateiname_logo'] ?? '')
+            );
+            $logoUrl = $remoteLogoUrl !== '' ? $remoteLogoUrl : $localLogoUrl;
+            $logoFallback = $remoteLogoUrl !== '' && $localLogoUrl !== ''
+                ? ' data-logo-fallback="' . self::escapeHtmlAttribute($localLogoUrl) . '"'
+                : '';
             $table .= '<option value="' . htmlspecialchars($teamName, ENT_QUOTES, 'UTF-8') . '"'
-                . ' data-logo="' . htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') . '"'
+                . ' data-logo="' . self::escapeHtmlAttribute($logoUrl) . '"' . $logoFallback
                 . ($selected ? ' selected="selected"' : '') . '>'
                 . htmlspecialchars($useLongNames ? $teamName : (string) $team['bezeichnung_mittel'], ENT_QUOTES, 'UTF-8')
                 . '</option>';
@@ -571,6 +577,7 @@ class modBulispielplanHelper
 
             if (self::isSelectedTeam($partie->Team1, $verein, $vereinTeamId)
                 || self::isSelectedTeam($partie->Team2, $verein, $vereinTeamId)) {
+                $bildFallback = '';
                 if ($partie->wettbewerb == $ligen[0]) {
                     $anzeigename = 'Bundesliga';
                     $i++;
@@ -595,9 +602,15 @@ class modBulispielplanHelper
                         ? $opponent->TeamName
                         : ($mediumName !== '' ? $mediumName : ($apiShortName !== '' ? $apiShortName : self::shortenTeamName($opponent->TeamName)));
                     if ($partie->wettbewerb == $ligen[0]) {
-                        $bildSrc = $teamData
-                            ? JURI::root() . 'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
-                            : (string) ($opponent->TeamIconUrl ?? '');
+                        $localLogoUrl = is_array($teamData)
+                            ? self::localLogoUrl(
+                                (string) ($teamData['logo_module'] ?? ''),
+                                (string) ($teamData['dateiname_logo'] ?? '')
+                            )
+                            : '';
+                        $remoteLogoUrl = self::safeRemoteImageUrl((string) ($opponent->TeamIconUrl ?? ''));
+                        $bildSrc = $remoteLogoUrl !== '' ? $remoteLogoUrl : $localLogoUrl;
+                        $bildFallback = $remoteLogoUrl !== '' && $localLogoUrl !== '' ? $localLogoUrl : '';
                     }
                 } else {
                     $wo = 'A';
@@ -609,9 +622,15 @@ class modBulispielplanHelper
                         ? $opponent->TeamName
                         : ($mediumName !== '' ? $mediumName : ($apiShortName !== '' ? $apiShortName : self::shortenTeamName($opponent->TeamName)));
                     if ($partie->wettbewerb == $ligen[0]) {
-                        $bildSrc = $teamData
-                            ? JURI::root() . 'modules/' . $teamData['logo_module'] . '/images/' . rawurlencode($teamData['dateiname_logo'])
-                            : (string) ($opponent->TeamIconUrl ?? '');
+                        $localLogoUrl = is_array($teamData)
+                            ? self::localLogoUrl(
+                                (string) ($teamData['logo_module'] ?? ''),
+                                (string) ($teamData['dateiname_logo'] ?? '')
+                            )
+                            : '';
+                        $remoteLogoUrl = self::safeRemoteImageUrl((string) ($opponent->TeamIconUrl ?? ''));
+                        $bildSrc = $remoteLogoUrl !== '' ? $remoteLogoUrl : $localLogoUrl;
+                        $bildFallback = $remoteLogoUrl !== '' && $localLogoUrl !== '' ? $localLogoUrl : '';
                     }
                 }
 
@@ -628,9 +647,12 @@ class modBulispielplanHelper
                 $dateTitle = $tage[date("w", strtotime($partie->MatchDateTime))] . ' '
                     . date('d.m.Y H:i', strtotime($partie->MatchDateTime)) . ' Uhr'
                     . (isset($partie->Location) && is_object($partie->Location) && !empty($partie->Location->LocationStadium) ? ' – ' . $partie->Location->LocationStadium : '');
+                $fallbackAttribute = !empty($bildFallback)
+                    ? ' data-fallback-src="' . self::escapeHtmlAttribute($bildFallback) . '"'
+                    : '';
                 $table .= '<tr id="' . $module->id . '_' . $id . '"><td style="text-align:right; padding-right: 5px;">' . $kurz . '</td>
         <td title="' . htmlspecialchars($dateTitle, ENT_QUOTES, 'UTF-8') . '">' . date('d.m.', strtotime($partie->MatchDateTime)) . '<span class="jbuli-date-year">' . date('Y', strtotime($partie->MatchDateTime)) . '</span></td>
-        <td><img style="width:20px; height:20px; object-fit:contain;" title="' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '" alt="" src="' . htmlspecialchars($bildSrc, ENT_QUOTES, 'UTF-8') . '"></td>
+        <td><img style="width:20px; height:20px; object-fit:contain;" title="' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '" alt="" src="' . self::escapeHtmlAttribute($bildSrc) . '"' . $fallbackAttribute . '></td>
         <td><div title="' . htmlspecialchars($tooltip, ENT_QUOTES, 'UTF-8') . '" style="cursor:default; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' . htmlspecialchars($anzeige, ENT_QUOTES, 'UTF-8') . '</div></td>
         <td>' . $wo . '</td>' . $ergebnisse . '</tr>';
             }
@@ -639,6 +661,43 @@ class modBulispielplanHelper
         $table .= "</table></div>";
 
         return $table;
+    }
+
+    private static function localLogoUrl(string $moduleName, string $filename): string
+    {
+        $moduleName = trim($moduleName);
+        $filename = trim($filename);
+        if (!in_array($moduleName, ['mod_bulispielplan', 'mod_buliergebnisse'], true)
+            || $filename === ''
+            || basename($filename) !== $filename) {
+            return '';
+        }
+
+        return is_file(JPATH_BASE . '/modules/' . $moduleName . '/images/' . $filename)
+            ? JURI::root() . 'modules/' . $moduleName . '/images/' . rawurlencode($filename)
+            : '';
+    }
+
+    private static function safeRemoteImageUrl(string $url): string
+    {
+        $url = trim($url);
+        if ($url === '' || preg_match('/[\x00-\x20\x7f]/u', $url)) {
+            return '';
+        }
+        $parts = parse_url($url);
+
+        return is_array($parts)
+            && strtolower((string) ($parts['scheme'] ?? '')) === 'https'
+            && !empty($parts['host'])
+            && empty($parts['user'])
+            && empty($parts['pass'])
+            ? $url
+            : '';
+    }
+
+    private static function escapeHtmlAttribute(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     private static function fetchCachedApiArray(string $url, string $cachefile, int $timeout, int $cacheTtl): array

@@ -9,5 +9,6 @@ terms is granted here.
 
 This package contains no player portraits. Site administrators can upload their
 own permitted portraits through the module settings and remain responsible for
-having the required rights. Where a local club badge is unavailable, the module
-may use the TeamIconUrl supplied by the OpenLigaDB API at runtime.
+having the required rights. The module uses TeamIconUrl from OpenLigaDB first;
+included local club badges are only load-error fallbacks for URLs that failed
+validation when the package was built.

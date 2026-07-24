@@ -2,12 +2,12 @@
 <extension type="module" version="6.0" client="site" method="upgrade">
 	<name>Fussball-Torschuetzen</name>
 	<author>Markus Krupp</author>
-	<creationDate>15.07.2026</creationDate>
+	<creationDate>24.07.2026</creationDate>
 	<copyright>(C) 2026 Markus Krupp</copyright>
 	<license>GNU/GPL version 2 or later; the package includes LICENSE.txt. Third-party image notices are in ASSET-LICENSES.txt.</license>
 	<authorEmail>webmaster@krupphome.de</authorEmail>
 	<authorUrl>https://www.krupphome.de/</authorUrl>
-	<version>1.0.15</version>
+	<version>1.0.16</version>
 	<description>Torschützenliste aus OpenLigaDB für Joomla 6</description>
 	<scriptfile>install.php</scriptfile>
 	<files>

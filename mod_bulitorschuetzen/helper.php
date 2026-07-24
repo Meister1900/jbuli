@@ -257,11 +257,12 @@ class modBulitorschuetzenHelper
             if ($teamId <= 0) {
                 continue;
             }
+            $logo = self::teamLogo($team);
             $teamData[$teamId] = [
                 'name' => trim((string) self::field($team, 'shortName', ''))
                     ?: trim((string) self::field($team, 'teamName', '')),
-                'icon' => self::localTeamIcon((string) self::field($team, 'teamName', ''))
-                    ?: self::safeRemoteImageUrl((string) self::field($team, 'teamIconUrl', '')),
+                'icon' => $logo['source'],
+                'icon_fallback' => $logo['fallback'],
             ];
         }
         foreach ($matches as $match) {
@@ -274,16 +275,20 @@ class modBulitorschuetzenHelper
                 if ($teamId <= 0) {
                     continue;
                 }
+                $logo = self::teamLogo($team);
                 $fallback = [
                     'name' => trim((string) self::field($team, 'shortName', ''))
                         ?: trim((string) self::field($team, 'teamName', '')),
-                    'icon' => self::localTeamIcon((string) self::field($team, 'teamName', ''))
-                        ?: self::safeRemoteImageUrl((string) self::field($team, 'teamIconUrl', '')),
+                    'icon' => $logo['source'],
+                    'icon_fallback' => $logo['fallback'],
                 ];
-                $current = $teamData[$teamId] ?? ['name' => '', 'icon' => ''];
+                $current = $teamData[$teamId] ?? ['name' => '', 'icon' => '', 'icon_fallback' => ''];
                 $teamData[$teamId] = [
                     'name' => $current['name'] !== '' ? $current['name'] : $fallback['name'],
                     'icon' => $current['icon'] !== '' ? $current['icon'] : $fallback['icon'],
+                    'icon_fallback' => $current['icon_fallback'] !== ''
+                        ? $current['icon_fallback']
+                        : $fallback['icon_fallback'],
                 ];
             }
         }
@@ -308,7 +313,7 @@ class modBulitorschuetzenHelper
             $lastGoals = $goals;
 
             $teamId = $playerTeams[$playerId] ?? 0;
-            $team = $teamData[$teamId] ?? ['name' => '', 'icon' => ''];
+            $team = $teamData[$teamId] ?? ['name' => '', 'icon' => '', 'icon_fallback' => ''];
             $photo = $showPhotos ? self::resolvePlayerPhoto($playerId) : '';
             $initials = self::playerInitials($playerName);
 
@@ -335,7 +340,11 @@ class modBulitorschuetzenHelper
                 $html .= '<span class="jbuli-scorers-team">';
                 if ($team['icon'] !== '') {
                     $html .= '<img src="' . htmlspecialchars($team['icon'], ENT_QUOTES, 'UTF-8')
-                        . '" alt="" loading="lazy" decoding="async">';
+                        . '" alt="" loading="lazy" decoding="async"'
+                        . ($team['icon_fallback'] !== ''
+                            ? ' data-fallback-src="' . htmlspecialchars($team['icon_fallback'], ENT_QUOTES, 'UTF-8') . '"'
+                            : '')
+                        . '>';
                 }
                 $html .= htmlspecialchars($team['name'], ENT_QUOTES, 'UTF-8') . '</span>';
             }
@@ -397,11 +406,22 @@ class modBulitorschuetzenHelper
         $name = mb_strtolower(trim($teamName));
         $files = ['arsenal' => 'arsenal.png', 'atletico' => 'atletico.png', 'madrid' => 'real.png', 'paris' => 'paris.png', 'barcelona' => 'barcelona.png'];
         foreach ($files as $needle => $file) {
-            if (str_contains($name, $needle)) {
+            if (str_contains($name, $needle) && is_file(__DIR__ . '/images/teams/' . $file)) {
                 return Uri::root() . 'modules/mod_bulitorschuetzen/images/teams/' . $file;
             }
         }
         return '';
+    }
+
+    private static function teamLogo(array $team): array
+    {
+        $remote = self::safeRemoteImageUrl((string) self::field($team, 'teamIconUrl', ''));
+        $local = self::localTeamIcon((string) self::field($team, 'teamName', ''));
+
+        return [
+            'source' => $remote !== '' ? $remote : $local,
+            'fallback' => $remote !== '' ? $local : '',
+        ];
     }
 
     private static function publishedSiteModule(int $moduleId): ?object
@@ -487,12 +507,18 @@ class modBulitorschuetzenHelper
     private static function safeRemoteImageUrl(string $url): string
     {
         $url = trim($url);
-        if ($url === '' || filter_var($url, FILTER_VALIDATE_URL) === false) {
+        if ($url === '' || preg_match('/[\x00-\x20\x7f]/u', $url)) {
             return '';
         }
-        $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+        $parts = parse_url($url);
 
-        return in_array($scheme, ['http', 'https'], true) ? $url : '';
+        return is_array($parts)
+            && strtolower((string) ($parts['scheme'] ?? '')) === 'https'
+            && !empty($parts['host'])
+            && empty($parts['user'])
+            && empty($parts['pass'])
+            ? $url
+            : '';
     }
 
     private static function field(array $record, string $name, $default = null)

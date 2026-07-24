@@ -8,6 +8,7 @@ included solely to identify clubs and competitions in the module. They are not
 licensed under the GPL by this package, and no permission beyond applicable law
 or the rights holder's terms is granted here.
 
-Where a local badge is unavailable, the module may use the TeamIconUrl supplied
-by the OpenLigaDB API at runtime. OpenLigaDB data and any remote asset remain
+The module uses the TeamIconUrl supplied by the OpenLigaDB API at runtime.
+Included local club badges are only load-error fallbacks for URLs that failed
+validation when the package was built. OpenLigaDB data and remote assets remain
 subject to their respective terms.

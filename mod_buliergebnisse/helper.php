@@ -377,21 +377,23 @@ class modBuliergebnisseHelper
             $team2 = $teams[$team2Name] ?? ['bezeichnung_mittel' => $team2Name, $bezeichnung => $team2Name, 'dateiname_logo' => ''];
             $team1LogoFile = (string) ($team1['dateiname_logo'] ?? '');
             $team2LogoFile = (string) ($team2['dateiname_logo'] ?? '');
-            $team1Logo = $team1LogoFile !== '' && is_file(JPATH_BASE . '/modules/mod_buliergebnisse/images/' . $team1LogoFile)
-                ? JURI::root() . 'modules/mod_buliergebnisse/images/' . rawurlencode($team1LogoFile)
-                : (string) ($partie->Team1->TeamIconUrl ?? '');
-            $team2Logo = $team2LogoFile !== '' && is_file(JPATH_BASE . '/modules/mod_buliergebnisse/images/' . $team2LogoFile)
-                ? JURI::root() . 'modules/mod_buliergebnisse/images/' . rawurlencode($team2LogoFile)
-                : (string) ($partie->Team2->TeamIconUrl ?? '');
+            $team1LocalLogo = self::localLogoUrl($team1LogoFile);
+            $team2LocalLogo = self::localLogoUrl($team2LogoFile);
+            $team1RemoteLogo = self::safeRemoteImageUrl((string) ($partie->Team1->TeamIconUrl ?? ''));
+            $team2RemoteLogo = self::safeRemoteImageUrl((string) ($partie->Team2->TeamIconUrl ?? ''));
 
             // Team 1
-            $table .= "<td class='jbuli-logo' align='left' valign='middle'><img title='" . htmlspecialchars((string) $team1['bezeichnung_mittel'], ENT_QUOTES, 'UTF-8') . "' alt='' src='" . htmlspecialchars($team1Logo, ENT_QUOTES, 'UTF-8') . "' /></td>\r\n";
+            $table .= "<td class='jbuli-logo' align='left' valign='middle'>"
+                . self::renderTeamLogo((string) $team1['bezeichnung_mittel'], $team1RemoteLogo, $team1LocalLogo)
+                . "</td>\r\n";
             $table .= "<td class='jbuli-team' align='left' valign='middle'>" . htmlspecialchars((string) ($team1[$bezeichnung] ?? $team1Name), ENT_QUOTES, 'UTF-8') . "</td>\r\n";
 
             $table .= "<td class='jbuli-separator' align='left' valign='middle'>-</td>\r\n";
 
             // Team 2
-            $table .= "<td class='jbuli-logo' align='left' valign='middle'><img title='" . htmlspecialchars((string) $team2['bezeichnung_mittel'], ENT_QUOTES, 'UTF-8') . "' alt='' src='" . htmlspecialchars($team2Logo, ENT_QUOTES, 'UTF-8') . "' /></td>\r\n";
+            $table .= "<td class='jbuli-logo' align='left' valign='middle'>"
+                . self::renderTeamLogo((string) $team2['bezeichnung_mittel'], $team2RemoteLogo, $team2LocalLogo)
+                . "</td>\r\n";
             $table .= "<td class='jbuli-team' align='left' valign='middle'>" . htmlspecialchars((string) ($team2[$bezeichnung] ?? $team2Name), ENT_QUOTES, 'UTF-8') . "</td>\r\n";
 
             $tootip_text = "";
@@ -462,6 +464,55 @@ class modBuliergebnisseHelper
         $table .= "</table>\r\n";
 
         return $table;
+    }
+
+    private static function localLogoUrl(string $filename): string
+    {
+        $filename = trim($filename);
+        if ($filename === '' || basename($filename) !== $filename) {
+            return '';
+        }
+
+        return is_file(__DIR__ . '/images/' . $filename)
+            ? JURI::root() . 'modules/mod_buliergebnisse/images/' . rawurlencode($filename)
+            : '';
+    }
+
+    private static function safeRemoteImageUrl(string $url): string
+    {
+        $url = trim($url);
+        if ($url === '' || preg_match('/[\x00-\x20\x7f]/u', $url)) {
+            return '';
+        }
+        $parts = parse_url($url);
+
+        return is_array($parts)
+            && strtolower((string) ($parts['scheme'] ?? '')) === 'https'
+            && !empty($parts['host'])
+            && empty($parts['user'])
+            && empty($parts['pass'])
+            ? $url
+            : '';
+    }
+
+    private static function renderTeamLogo(string $title, string $remoteUrl, string $localUrl): string
+    {
+        $source = $remoteUrl !== '' ? $remoteUrl : $localUrl;
+        if ($source === '') {
+            return '';
+        }
+
+        $fallback = $remoteUrl !== '' && $localUrl !== ''
+            ? ' data-fallback-src="' . self::escapeHtmlAttribute($localUrl) . '"'
+            : '';
+
+        return '<img title="' . self::escapeHtmlAttribute($title) . '" alt="" loading="lazy" decoding="async"'
+            . ' src="' . self::escapeHtmlAttribute($source) . '"' . $fallback . '>';
+    }
+
+    private static function escapeHtmlAttribute(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     private static function writeCacheAtomically(string $cachefile, string $content): void

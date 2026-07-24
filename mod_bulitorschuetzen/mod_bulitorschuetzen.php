@@ -31,7 +31,7 @@ try {
     );
     $endpoint = htmlspecialchars(Uri::root() . 'index.php', ENT_QUOTES, 'UTF-8');
 
-    $strHTMLOutput = "\n<!-- Torschützen 1.0.15 - (c) Markus Krupp - https://www.krupphome.de/ -->\n";
+    $strHTMLOutput = "\n<!-- Torschützen 1.0.16 - (c) Markus Krupp - https://www.krupphome.de/ -->\n";
     $strHTMLOutput .= '<div id="bulitorschuetzen_' . $moduleId . '" class="jbuli-scorers"'
         . ' data-module-id="' . $moduleId . '"'
         . ' data-endpoint="' . $endpoint . '"'

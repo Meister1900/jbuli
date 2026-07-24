@@ -12,6 +12,14 @@
         }).on('mouseleave.jbuliGoalTooltip focusout.jbuliGoalTooltip', '.jbuli-goal-tooltip', function () { popover.removeClass('is-visible'); });
     }
     function response(xhr) { try { return $.parseJSON(xhr.responseText.substring(xhr.responseText.indexOf('success') - 2)); } catch (error) { return {success: false, message: 'Keine Verbindung zum Ergebnisserver. Bitte später erneut versuchen.'}; } }
+    function logoFallback(event) {
+        var image = event.target, fallback;
+        if (!image || image.tagName !== 'IMG') { return; }
+        fallback = image.getAttribute('data-fallback-src') || '';
+        if (!fallback) { return; }
+        image.removeAttribute('data-fallback-src');
+        image.src = fallback;
+    }
     function load(root) {
         var id = root.dataset.moduleId, request = (Number(root.dataset.request) || 0) + 1; root.dataset.request = request;
         var loader = $('#buliergebnisse_loading_' + id).show();
@@ -19,6 +27,6 @@
             if (request !== Number(root.dataset.request)) { return; } loader.hide(); root.innerHTML = data.success === false ? data.message : data.data; tooltip(root);
         }).fail(function (xhr) { if (request !== Number(root.dataset.request)) { return; } var data = response(xhr); loader.hide(); root.innerHTML = data.success === false ? data.message : data.data; tooltip(root); });
     }
-    function initialize(root) { if (root.dataset.jbuliInitialized === '1') { return; } root.dataset.jbuliInitialized = '1'; tooltip(root); load(root); $(root).on('change', function () { load(root); }); }
+    function initialize(root) { if (root.dataset.jbuliInitialized === '1') { return; } root.dataset.jbuliInitialized = '1'; root.addEventListener('error', logoFallback, true); tooltip(root); load(root); $(root).on('change', function () { load(root); }); }
     $(function () { document.querySelectorAll('.jbuli-results-root[data-module-id]').forEach(initialize); });
 }(jQuery));

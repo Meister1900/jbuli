@@ -3,10 +3,10 @@ Responsive Fußball-Ergebnisse, Spielpläne und Tabellen für Joomla 6. Die Spie
 
 ## Aktuelle Versionen
 
-- Ergebnismodul `2.1.14`
-- Spielplanmodul `2.1.22`
-- Tabellenmodul `2.1.11`
-- Torschützenmodul `1.0.15`
+- Ergebnismodul `2.1.15`
+- Spielplanmodul `2.1.23`
+- Tabellenmodul `2.1.13`
+- Torschützenmodul `1.0.16`
 
 ## Voraussetzungen und Installation
 
@@ -58,7 +58,7 @@ Features
 - Mit der aktuellen Joomla Version 6 und PHP 8 kompatibel
 - Garantiert werbe- und kostenfrei!
 
-Aktuelle OpenLigaDB-Kürzel: `bl1`, `bl2`, `la1`, `epl`, `sa` und `ucl`. Internationale Saisons sind nur verfügbar, wenn sie in OpenLigaDB gepflegt werden. Für `ucl/2026` waren Liga und 16 Runden beim Release bereits angelegt, Spiele und Teams jedoch noch nicht veröffentlicht. Fehlende lokale Logos verwenden automatisch die Icon-URL aus der API.
+Aktuelle OpenLigaDB-Kürzel: `bl1`, `bl2`, `la1`, `epl`, `sa` und `ucl`. Internationale Saisons sind nur verfügbar, wenn sie in OpenLigaDB gepflegt werden. Für `ucl/2026` waren Liga und 16 Runden beim Release bereits angelegt, Spiele und Teams jedoch noch nicht veröffentlicht. Vereinslogos werden primär über die `TeamIconUrl` der API geladen; ein mitgeliefertes lokales Logo wird nur nach einem Ladefehler als Fallback verwendet.
 
 
 
@@ -74,6 +74,7 @@ Features
 - Der eigene Verein kann per CSS hervorgehoben werden
 - Die Vereinsauswahl im Backend wird passend zu Liga und Saison erzeugt
 - Jede Modulinstanz besitzt einen eigenen Cache
+- Vereinslogos stammen primär aus der saisonbezogenen OpenLigaDB-Teamliste; lokale Dateien dienen nur als Ladefehler-Fallback
 - Mit der aktuellen Joomla Version 6 und PHP 8 kompatibel
 - Garantiert werbefrei!
 
@@ -86,6 +87,7 @@ Features
 - Liga, Saison und Anzahl der Top-Torschützen im Backend einstellbar
 - Unterstützt 1. und 2. Bundesliga, Premier League, LaLiga, Serie A und Champions League
 - Zeigt Spieler, Toranzahl, Verein und Vereinslogo
+- Vereinslogos stammen primär aus OpenLigaDB; lokale Vereinslogos werden nur bei einem Ladefehler verwendet
 - Optionale lokale Spielerporträts anhand der OpenLigaDB-Spieler-ID
 - Eigene Spielerporträts lassen sich im Backend für einen aus OpenLigaDB gewählten Torschützen hochladen und werden automatisch nach dessen Spieler-ID benannt
 - Spielerporträts werden bei Hover oder Tastaturfokus vergrößert; moderne Initialen-Platzhalter bleiben statisch

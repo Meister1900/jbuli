@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.16 – 24.07.2026
+
+- OpenLigaDB-Teamlogos werden vor lokalen Vereinslogos verwendet.
+- Lokale Vereinslogos greifen nur noch nach einem Ladefehler der API-URL.
+
 ## 1.0.15 – 24.07.2026
 
 - JED-Prüfung: ASCII-konformen Modulnamen im Manifest verwendet.

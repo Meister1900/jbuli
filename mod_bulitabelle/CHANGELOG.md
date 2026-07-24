@@ -1,3 +1,5 @@
+ * 2.1.13 - Saisonbezogene OpenLigaDB-Teamlogos mit gecachtem Abruf und lokalem Ladefehler-Fallback
+ * 2.1.12 - Öffentliche Aktualisierung gegen Request-Flooding abgesichert und Hervorhebungs-CSS sicher escaped
  * 2.1.11 - CSS und JavaScript in cachefähige Moduldateien ausgelagert
  * 2.1.10 - JED-konforme GPL-Hinweise, Paketlizenz und Bildrechtehinweise ergänzt
  * 2.1.9 - Update-Metadaten vollständig auf GitHub Raw umgestellt

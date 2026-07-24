@@ -24,7 +24,7 @@ use Joomla\CMS\Uri\Uri as JURI;
     $strHTMLOutput = '';
     try {
         $ergebnisse = new modBuliergebnisseHelper($module);
-        $strHTMLOutput = "\r\n<!-- Bundesliga-Ergebnisse 2.1.14 - (c) Markus Krupp - https://www.krupphome.de/-->\r\n";
+        $strHTMLOutput = "\r\n<!-- Bundesliga-Ergebnisse 2.1.15 - (c) Markus Krupp - https://www.krupphome.de/-->\r\n";
         $activeMenu = JFactory::getApplication()->getMenu()->getActive();
         $itemId = $activeMenu ? (int) $activeMenu->id : 0;
         $endpoint = htmlspecialchars(JURI::base() . 'index.php', ENT_QUOTES, 'UTF-8');

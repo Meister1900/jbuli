@@ -14,11 +14,25 @@
         return typeof payload.data === 'string' ? payload.data : '';
     }
 
+    function logoFallback(event) {
+        const image = event.target;
+        if (!image || image.tagName !== 'IMG') {
+            return;
+        }
+        const fallback = image.getAttribute('data-fallback-src') || '';
+        if (!fallback) {
+            return;
+        }
+        image.removeAttribute('data-fallback-src');
+        image.src = fallback;
+    }
+
     async function loadModule(root) {
         if (root.dataset.jbuliInitialized === '1') {
             return;
         }
         root.dataset.jbuliInitialized = '1';
+        root.addEventListener('error', logoFallback, true);
 
         const body = new URLSearchParams({
             option: 'com_ajax',

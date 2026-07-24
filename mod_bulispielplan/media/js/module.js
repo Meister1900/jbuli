@@ -12,11 +12,20 @@
         }).on('mouseleave.jbuliGoalTooltip focusout.jbuliGoalTooltip', '.jbuli-goal-tooltip', function () { popover.removeClass('is-visible'); });
     }
     function response(xhr) { try { return $.parseJSON(xhr.responseText.substring(xhr.responseText.indexOf('success') - 2)); } catch (error) { return {success:false, message:'Keine Verbindung zum Ergebnisserver. Bitte später erneut versuchen.'}; } }
+    function logoFallback(event) {
+        var image = event.target, fallback;
+        if (!image || image.tagName !== 'IMG') { return; }
+        fallback = image.getAttribute('data-fallback-src') || '';
+        if (!fallback) { return; }
+        image.removeAttribute('data-fallback-src');
+        image.src = fallback;
+    }
     function enhance(root) {
         var id = root.dataset.moduleId, select = $('#verein_' + id), wrapper = select.closest('.jbuli-team-select'); if (!select.length || wrapper.hasClass('jbuli-enhanced')) { return; }
         var trigger = $('<button type="button" class="jbuli-select-button" aria-haspopup="listbox" aria-expanded="false"></button>'), menu = $('<div class="jbuli-select-menu" role="listbox"></div>');
-        function fill(option) { trigger.empty(); var url = option.data('logo') || ''; if (url) { trigger.append($('<img alt="">').attr('src', url)); } trigger.append($('<span></span>').text(option.text())); }
-        select.find('option').each(function () { var option = $(this), item = $('<button type="button" class="jbuli-select-option" role="option"></button>'), url = option.data('logo') || ''; if (url) { item.append($('<img alt="">').attr('src', url)); } item.append($('<span></span>').text(option.text())).attr('aria-selected', option.is(':selected') ? 'true' : 'false').on('click', function (event) { event.stopPropagation(); select.val(option.val()); menu.removeClass('is-open'); trigger.attr('aria-expanded', 'false'); fill(option); select.trigger('change'); }); menu.append(item); });
+        function imageFor(option) { var url = option.attr('data-logo') || '', fallback = option.attr('data-logo-fallback') || '', image; if (!url) { return null; } image = $('<img alt="">').attr('src', url); if (fallback) { image.attr('data-fallback-src', fallback); } return image; }
+        function fill(option) { var image; trigger.empty(); image = imageFor(option); if (image) { trigger.append(image); } trigger.append($('<span></span>').text(option.text())); }
+        select.find('option').each(function () { var option = $(this), item = $('<button type="button" class="jbuli-select-option" role="option"></button>'), image = imageFor(option); if (image) { item.append(image); } item.append($('<span></span>').text(option.text())).attr('aria-selected', option.is(':selected') ? 'true' : 'false').on('click', function (event) { event.stopPropagation(); select.val(option.val()); menu.removeClass('is-open'); trigger.attr('aria-expanded', 'false'); fill(option); select.trigger('change'); }); menu.append(item); });
         trigger.on('click', function (event) {
             event.stopPropagation();
             var open = !menu.hasClass('is-open');
@@ -40,6 +49,6 @@
         var id = root.dataset.moduleId, request = (Number(root.dataset.request) || 0) + 1; root.dataset.request = request; var loader = $('#bulispielplan_loading_' + id).show();
         $.post(root.dataset.endpoint || 'index.php', {option:'com_ajax', module:'bulispielplan', Itemid:root.dataset.itemId || '0', method:'getSpielplan', format:'json', module_id:id, verein:$('#verein_' + id).val()}, function (data) { if (request !== Number(root.dataset.request)) { return; } loader.hide(); root.innerHTML = data.success === false ? data.message : data.data; enhance(root); fit(root); tooltip(root); }).fail(function (xhr) { if (request !== Number(root.dataset.request)) { return; } var data = response(xhr); loader.hide(); root.innerHTML = data.success === false ? data.message : data.data; enhance(root); fit(root); tooltip(root); });
     }
-    function initialize(root) { if (root.dataset.jbuliInitialized === '1') { return; } root.dataset.jbuliInitialized = '1'; tooltip(root); load(root); $(root).on('change', '#verein_' + root.dataset.moduleId, function () { load(root); }); if (window.ResizeObserver) { new ResizeObserver(function () { window.requestAnimationFrame(function () { fit(root); }); }).observe(root); } else { $(window).on('resize.bulispielplan_' + root.dataset.moduleId, function () { fit(root); }); } }
+    function initialize(root) { if (root.dataset.jbuliInitialized === '1') { return; } root.dataset.jbuliInitialized = '1'; root.addEventListener('error', logoFallback, true); tooltip(root); load(root); $(root).on('change', '#verein_' + root.dataset.moduleId, function () { load(root); }); if (window.ResizeObserver) { new ResizeObserver(function () { window.requestAnimationFrame(function () { fit(root); }); }).observe(root); } else { $(window).on('resize.bulispielplan_' + root.dataset.moduleId, function () { fit(root); }); } }
     $(function () { document.querySelectorAll('.jbuli-schedule-root[data-module-id]').forEach(initialize); });
 }(jQuery));
