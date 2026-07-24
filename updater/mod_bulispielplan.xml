@@ -4,7 +4,7 @@
     <description>Bundesliga-Spielplan Modul Version 2.1.23 für Joomla 6 – OpenLigaDB-Logos mit lokalem Ladefehler-Fallback</description>
     <element>mod_bulispielplan</element>
     <type>module</type>
-	<client>0</client>
+	<client>site</client>
     <version>2.1.23</version>
     <infourl title="Bundesliga Module für Joomla!">https://www.krupphome.de/</infourl>
     <downloads>
@@ -16,6 +16,6 @@
     </tags>
     <maintainer>Markus Krupp</maintainer>
     <maintainerurl>https://www.krupphome.de/</maintainerurl>
-    <targetplatform name="joomla" version="6.*"/>
+    <targetplatform name="joomla" version="6\.[0-9]+"/>
  </update>
 </updates>
